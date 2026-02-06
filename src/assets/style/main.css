@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@plugin "daisyui" {
+  themes: light --default, dark --prefersdark;
+}
+
+.image-white {
+  z-index: -9999px;
+
+  filter: brightness(110%) contrast(105%);
+}
+
+.bounce-img {
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(50px); /* ke bawah */
+  }
+  40% {
+    transform: translateY(0); /* posisi normal */
+  }
+  60% {
+    transform: translateY(5px);
+  }
+}
