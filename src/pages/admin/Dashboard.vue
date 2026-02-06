@@ -14,11 +14,11 @@
       <div class="card bg-base-100 shadow-md">
         <div class="card-body">
           <div class="flex justify-between items-center">
-            <h2 class="card-title">Total Game Dimainkan</h2>
+            <h2 class="card-title">Total Kuis Diselesaikan</h2>
             <div class="text-2xl">🎮</div>
           </div>
-          <p class="text-4xl font-bold mt-2">24</p>
-          <p class="text-success">+3 dari minggu lalu</p>
+          <p class="text-4xl font-bold mt-2">24/25</p>
+          <!-- <p class="text-success">+3 dari minggu lalu</p> -->
         </div>
       </div>
 
@@ -29,8 +29,8 @@
             <h2 class="card-title">Pelajaran Selesai</h2>
             <div class="text-2xl">📖</div>
           </div>
-          <p class="text-4xl font-bold mt-2">12</p>
-          <p class="text-success">+2 dari minggu lalu</p>
+          <p class="text-4xl font-bold mt-2">12/15</p>
+          <!-- <p class="text-success">+2 dari minggu lalu</p> -->
         </div>
       </div>
 
@@ -38,11 +38,11 @@
       <div class="card bg-base-100 shadow-md">
         <div class="card-body">
           <div class="flex justify-between items-center">
-            <h2 class="card-title">Penghargaan</h2>
-            <div class="text-2xl">🏆</div>
+            <h2 class="card-title">Total Kuis Aktif</h2>
+            <div class="text-2xl">✅</div>
           </div>
-          <p class="text-4xl font-bold mt-2">7</p>
-          <p class="text-success">+1 penghargaan baru</p>
+          <p class="text-4xl font-bold mt-2">3/15</p>
+          <!-- <p class="text-success">+1 penghargaan baru</p> -->
         </div>
       </div>
 
@@ -50,27 +50,49 @@
       <div class="card bg-base-100 shadow-md">
         <div class="card-body">
           <div class="flex justify-between items-center">
-            <h2 class="card-title">Perkembangan Mingguan</h2>
+            <h2 class="card-title">Total Nilai Sempurna</h2>
             <div class="text-2xl">📈</div>
           </div>
-          <p class="text-4xl font-bold mt-2">68%</p>
-          <p class="text-success">+12% dari minggu lalu</p>
+          <p class="text-4xl font-bold mt-2">30/96</p>
+          <!-- <p class="text-success">+12% dari minggu lalu</p> -->
+        </div>
+      </div>
+      <!-- Weekly Progress Card -->
+      <div class="card bg-base-100 shadow-md">
+        <div class="card-body">
+          <div class="flex justify-between items-center">
+            <h2 class="card-title">Total Murid</h2>
+            <div class="text-2xl">👥</div>
+          </div>
+          <p class="text-4xl font-bold mt-2">30</p>
+          <!-- <p class="text-success">+12% dari minggu lalu</p> -->
+        </div>
+      </div>
+      <!-- Weekly Progress Card -->
+      <div class="card bg-base-100 shadow-md">
+        <div class="card-body">
+          <div class="flex justify-between items-center">
+            <h2 class="card-title">Total Kelas</h2>
+            <div class="text-2xl">🏠</div>
+          </div>
+          <p class="text-4xl font-bold mt-2">10</p>
+          <!-- <p class="text-success">+12% dari minggu lalu</p> -->
         </div>
       </div>
     </div>
 
     <!-- Tabs -->
     <div class="tabs mb-6">
-      <a class="tab tab-bordered tab-active">Perkembangan</a>
-      <a class="tab tab-bordered">Aktivitas Terbaru</a>
-      <a class="tab tab-bordered">Penghargaan</a>
+      <a class="tab tab-bordered tab-active">Progres</a>
+      <a class="tab tab-bordered">Murid Kelas</a>
+      <!-- <a class="tab tab-bordered">Penghargaan</a> -->
     </div>
 
     <!-- Subject Progress Section -->
     <div class="card bg-base-100 shadow-md mb-6">
       <div class="card-body">
-        <h2 class="text-2xl font-bold mb-2">Perkembangan Pelajaran</h2>
-        <p class="text-gray-500 mb-6">Pantau perkembangan belajar Anda di berbagai pelajaran</p>
+        <h2 class="text-2xl font-bold mb-2">Progres Pelajaran</h2>
+        <p class="text-gray-500 mb-6">Total kuis terselesaikan</p>
 
         <!-- Math Progress -->
         <div class="mb-4">
@@ -79,7 +101,7 @@
               <div class="bg-blue-200 p-2 rounded">
                 <span class="font-semibold">12/34</span>
               </div>
-              <span class="font-semibold">Matematika</span>
+              <span class="font-semibold">Matematika Kela 2 A</span>
             </div>
             <span class="font-semibold">65%</span>
           </div>
