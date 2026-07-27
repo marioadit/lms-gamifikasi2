@@ -77,6 +77,14 @@ const openStudentManagement = () => {
             <span class="text-base font-medium">{{ selectedClass.teacher.email }}</span>
           </div>
           <div class="flex flex-col gap-1">
+            <span class="text-sm text-gray-500">Semester:</span>
+            <span class="text-base font-medium">{{ selectedClass.semester || '-' }}</span>
+          </div>
+          <div class="flex flex-col gap-1">
+            <span class="text-sm text-gray-500">Tahun Ajaran:</span>
+            <span class="text-base font-medium">{{ selectedClass.academic_year || '-' }}</span>
+          </div>
+          <div class="flex flex-col gap-1">
             <span class="text-sm text-gray-500">Jumlah Siswa:</span>
             <span class="text-base font-medium">{{ selectedClass.students ? selectedClass.students.length : 0 }}</span>
           </div>

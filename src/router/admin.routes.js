@@ -9,6 +9,7 @@ import EditClassPage from "../pages/admin/EditClassPage.vue";
 import ClassStudentsPage from "../pages/admin/ClassStudentsPage.vue";
 import DetailClassesPage from "../pages/admin/DetailClassesPage.vue";
 import ListSiswaPage from "../pages/admin/users/ListSiswaPage.vue";
+import ListGuruPage from "../pages/admin/users/ListGuruPage.vue";
 import DetailUserPage from "../pages/admin/users/DetailUserPage.vue";
 import EditLessonsPage from "../pages/admin/EditLessonsPage.vue";
 import DetailLessonsPage from "../pages/admin/DetailLessonsPage.vue";
@@ -171,6 +172,18 @@ export default [
                 name: "adminDetailSiswa",
                 component: DetailUserPage,
                 meta: { title: "Detail Siswa", requiresAuth: true }
+            },
+            {
+                path: "users/guru",
+                name: "adminListGuru",
+                component: ListGuruPage,
+                meta: { title: "Daftar Guru", requiresAuth: true }
+            },
+            {
+                path: "users/guru/:id",
+                name: "adminDetailGuru",
+                component: DetailUserPage,
+                meta: { title: "Detail Guru", requiresAuth: true }
             },
             {
                 path: "users/kuis/:id",

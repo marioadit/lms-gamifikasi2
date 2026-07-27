@@ -19,17 +19,23 @@ export const useStudentStore = defineStore("student", {
                 if (response.data && response.data.data && response.data.data.data) {
                     this.students = response.data.data.data.map(student => ({
                         ...student,
-                        selected: false
+                        selected: false,
+                        disabled: false,
+                        enrolledClassName: null
                     }));
                 } else if (response.data && response.data.data) {
                     this.students = response.data.data.map(student => ({
                         ...student,
-                        selected: false
+                        selected: false,
+                        disabled: false,
+                        enrolledClassName: null
                     }));
                 } else if (response.data) {
                     this.students = response.data.map(student => ({
                         ...student,
-                        selected: false
+                        selected: false,
+                        disabled: false,
+                        enrolledClassName: null
                     }));
                 }
             }
@@ -59,12 +65,28 @@ export const useStudentStore = defineStore("student", {
                 
                 this.classStudents = classStudentsList;
                 
-                // Mark students that are already in the class
-                if (this.students.length > 0 && classStudentsList.length > 0) {
+                // Mark students that are already in this class or enrolled in another class
+                if (this.students.length > 0) {
                     this.students.forEach(student => {
-                        student.selected = classStudentsList.some(
+                        const isInThisClass = classStudentsList.some(
                             classStudent => classStudent.id === student.id
                         );
+                        
+                        if (isInThisClass) {
+                            // Student is in the current class - allow editing
+                            student.selected = true;
+                            student.disabled = false;
+                            student.enrolledClassName = null;
+                        } else if (student.classes_enrolled && student.classes_enrolled.length > 0) {
+                            // Student is enrolled in another class - disable checkbox
+                            student.selected = false;
+                            student.disabled = true;
+                            student.enrolledClassName = student.classes_enrolled.map(c => c.name).join(', ');
+                        } else {
+                            student.selected = false;
+                            student.disabled = false;
+                            student.enrolledClassName = null;
+                        }
                     });
                 }
             }
