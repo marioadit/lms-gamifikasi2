@@ -28,9 +28,9 @@ const classData = computed(() => classesStore.selectedClass);
 
 // Simpan siswa yang dipilih
 const saveStudents = async () => {
-  // Dapatkan siswa yang dipilih
+  // Dapatkan siswa yang dipilih (hanya yang tidak disabled)
   const selectedStudentIds = students.value
-    .filter(s => s.selected)
+    .filter(s => s.selected && !s.disabled)
     .map(s => s.id);
   
   await studentStore.saveClassStudents(classId.value, selectedStudentIds);
@@ -62,7 +62,9 @@ const selectAll = ref(false);
 const toggleSelectAll = () => {
   selectAll.value = !selectAll.value;
   students.value.forEach(student => {
-    student.selected = selectAll.value;
+    if (!student.disabled) {
+      student.selected = selectAll.value;
+    }
   });
 };
 
@@ -145,14 +147,18 @@ const cancelEdit = () => {
               </tr>
             </thead>
             <tbody>
-              <tr v-for="student in filteredStudents" :key="student.id">
+              <tr v-for="student in filteredStudents" :key="student.id" :class="{ 'opacity-60': student.disabled }">
                 <td>
-                  <input type="checkbox" class="checkbox" v-model="student.selected" />
+                  <input type="checkbox" class="checkbox" v-model="student.selected" :disabled="student.disabled" />
                 </td>
                 <td class="font-medium">{{ student.name }}</td>
                 <td>{{ student.email }}</td>
                 <td>
-                  <div v-if="student.selected" class="badge badge-success">Terdaftar</div>
+                  <div v-if="student.disabled && student.enrolledClassName" class="badge badge-warning gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    {{ student.enrolledClassName }}
+                  </div>
+                  <div v-else-if="student.selected" class="badge badge-success">Terdaftar</div>
                   <div v-else class="badge badge-ghost">Tidak Terdaftar</div>
                 </td>
               </tr>

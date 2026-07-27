@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useClassesStore } from "../../store/classesStore";
 
@@ -20,6 +20,23 @@ const classFormData = ref({
   name: "",
   level: "",
   teacher_id: "",
+  semester: "",
+});
+
+// Tahun Ajaran split fields
+const academicYear1 = ref(null);
+const academicYear2 = computed(() => {
+  return academicYear1.value ? academicYear1.value + 1 : null;
+});
+
+// Generate year options (current year - 2 to current year + 5)
+const currentYear = new Date().getFullYear();
+const yearOptions = computed(() => {
+  const years = [];
+  for (let y = currentYear - 2; y <= currentYear + 5; y++) {
+    years.push(y);
+  }
+  return years;
 });
 
 console.log(classFormData.value);
@@ -49,8 +66,24 @@ const saveClass = async () => {
     return;
   }
 
+  if (!classFormData.value.semester) {
+    errorMessage.value = "Semester harus dipilih";
+    isLoading.value = false;
+    return;
+  }
+
+  if (!academicYear1.value) {
+    errorMessage.value = "Tahun ajaran harus dipilih";
+    isLoading.value = false;
+    return;
+  }
+
   try {
-    const result = await classesStore.createClass(classFormData.value);
+    const submitData = {
+      ...classFormData.value,
+      academic_year: `${academicYear1.value}/${academicYear2.value}`,
+    };
+    const result = await classesStore.createClass(submitData);
     console.log("Class created successfully:", result);
     successMessage.value = "Kelas berhasil ditambahkan!";
     
@@ -58,8 +91,10 @@ const saveClass = async () => {
     classFormData.value = {
       name: "",
       level: "",
-      teacher_id: ""
+      teacher_id: "",
+      semester: "",
     };
+    academicYear1.value = null;
     
     // Redirect after successful creation
     setTimeout(() => {
@@ -183,6 +218,49 @@ const cancelAdd = () => {
             {{ teacher.name }}
           </option>
         </select>
+      </div>
+
+      <div class="form-control mb-6">
+        <label class="label">
+          <span class="label-text font-medium">Semester</span>
+        </label>
+        <select
+          v-model="classFormData.semester"
+          class="select select-bordered w-full"
+        >
+          <option value="" disabled>Pilih Semester</option>
+          <option value="gasal">Gasal</option>
+          <option value="genap">Genap</option>
+        </select>
+      </div>
+
+      <div class="form-control mb-6">
+        <label class="label">
+          <span class="label-text font-medium">Tahun Ajaran</span>
+        </label>
+        <div class="flex items-center gap-2">
+          <select
+            v-model="academicYear1"
+            class="select select-bordered flex-1"
+          >
+            <option :value="null" disabled>Pilih Tahun</option>
+            <option
+              v-for="year in yearOptions"
+              :key="year"
+              :value="year"
+            >
+              {{ year }}
+            </option>
+          </select>
+          <span class="text-lg font-bold">/</span>
+          <input
+            :value="academicYear2"
+            type="text"
+            class="input input-bordered flex-1 bg-gray-100"
+            readonly
+            :placeholder="academicYear2 ? '' : 'Otomatis'"
+          />
+        </div>
       </div>
 
       <div class="divider mb-6">Informasi Tambahan</div>

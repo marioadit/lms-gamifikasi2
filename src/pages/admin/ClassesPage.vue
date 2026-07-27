@@ -179,6 +179,8 @@ const saveStudents = () => {
             <th>Guru</th>
             <th>Jumlah Siswa</th>
             <th>Jumlah Pelajaran</th>
+            <th>Semester</th>
+            <th>Tahun Ajaran</th>
             <th>Aksi</th>
           </tr>
         </thead>
@@ -189,6 +191,8 @@ const saveStudents = () => {
             <td>{{ cls.teacher ? cls.teacher.name : "Belum ada guru" }}</td>
             <td>{{ cls.student_count }}</td>
             <td>{{ cls.lesson_count || 0 }}</td>
+            <td>{{ cls.semester || '-' }}</td>
+            <td>{{ cls.academic_year || '-' }}</td>
             <td class="flex gap-2">
               <router-link
                 :to="`/admin/kelas/${cls.id}`"
@@ -220,7 +224,7 @@ const saveStudents = () => {
             </td>
           </tr>
           <tr v-if="classes.length === 0">
-            <td colspan="6" class="text-center py-4">
+            <td colspan="8" class="text-center py-4">
               Belum ada kelas. Tambahkan kelas baru.
             </td>
           </tr>
