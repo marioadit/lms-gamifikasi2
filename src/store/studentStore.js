@@ -1,10 +1,13 @@
 import { defineStore } from "pinia";
 import { getUserStudent, getClassStudents, enrollStudent, removeStudentFromClass } from "../api/studentsClassesApi";
+import { register } from "../api/authApi";
+import { getUserById, updateUserProfile, updateUserPassword, resetUserPassword, deleteUser } from "../api/userApi";
 
 export const useStudentStore = defineStore("student", {
     state: () => ({
         students: [],
         classStudents: [],
+        currentStudent: null,
         loading: false,
         error: null,
         success: null
@@ -134,6 +137,116 @@ export const useStudentStore = defineStore("student", {
                 this.error = "Gagal menyimpan perubahan siswa";
             }
             finally {
+                this.loading = false;
+            }
+        },
+
+        async getStudentById(id) {
+            this.loading = true;
+            this.error = null;
+            try {
+                const response = await getUserById(id);
+                const data = response.data || response;
+                this.currentStudent = data;
+                return data;
+            } catch (error) {
+                console.error(`Error fetching student ${id}:`, error);
+                this.error = "Gagal memuat data siswa";
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async createStudent(formData) {
+            this.loading = true;
+            this.error = null;
+            this.success = null;
+            try {
+                const res = await register(formData);
+                this.success = "Siswa berhasil ditambahkan";
+                await this.getUserStudent();
+                return res;
+            } catch (error) {
+                console.error("Error creating student:", error);
+                const message = typeof error === 'string' ? error : (error?.message || "Gagal menambahkan siswa");
+                this.error = message;
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async updateStudentProfile(id, formData) {
+            this.loading = true;
+            this.error = null;
+            this.success = null;
+            try {
+                const res = await updateUserProfile(id, formData);
+                this.success = "Profil siswa berhasil diperbarui";
+                await this.getUserStudent();
+                return res;
+            } catch (error) {
+                console.error("Error updating student profile:", error);
+                const message = error.response?.data?.message || error.message || "Gagal memperbarui profil siswa";
+                this.error = message;
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async updateStudentPassword(id, formData) {
+            this.loading = true;
+            this.error = null;
+            this.success = null;
+            try {
+                const res = await updateUserPassword(id, formData);
+                this.success = "Password siswa berhasil diperbarui";
+                return res;
+            } catch (error) {
+                console.error("Error updating student password:", error);
+                const message = error.response?.data?.message || error.message || "Gagal memperbarui password";
+                this.error = message;
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async resetStudentPassword(id) {
+            this.loading = true;
+            this.error = null;
+            this.success = null;
+            try {
+                const res = await resetUserPassword(id);
+                this.success = "Password siswa berhasil di-reset";
+                return res;
+            } catch (error) {
+                console.error("Error resetting student password:", error);
+                const message = error.response?.data?.message || error.message || "Gagal mereset password";
+                this.error = message;
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async deleteStudent(id) {
+            this.loading = true;
+            this.error = null;
+            this.success = null;
+            try {
+                const res = await deleteUser(id);
+                this.success = "Siswa berhasil dihapus";
+                await this.getUserStudent();
+                return res;
+            } catch (error) {
+                console.error("Error deleting student:", error);
+                const message = error.response?.data?.message || error.message || "Gagal menghapus siswa";
+                this.error = message;
+                throw error;
+            } finally {
                 this.loading = false;
             }
         }

@@ -36,7 +36,21 @@ export const getUserProfile = async () => {
 }
 
 export const updateUserProfile = async (id, data) => {
-    const response = await axiosInstance.put(`users/profile/${id}`, data);
+    const role = localStorage.getItem("role");
+    const prefix = (role === "admin" || role === "guru") ? "admin/users" : "users";
+    const response = await axiosInstance.put(`${prefix}/profile/${id}`, data);
+    return response.data;
+}
+
+export const updateUserPassword = async (id, data) => {
+    const role = localStorage.getItem("role");
+    const prefix = (role === "admin" || role === "guru") ? "admin/users" : "users";
+    const response = await axiosInstance.put(`${prefix}/password/${id}`, data);
+    return response.data;
+}
+
+export const resetUserPassword = async (id) => {
+    const response = await axiosInstance.post(`admin/users/reset-password/${id}`);
     return response.data;
 }
 

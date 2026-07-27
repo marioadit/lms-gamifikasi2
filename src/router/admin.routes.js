@@ -9,6 +9,9 @@ import EditClassPage from "../pages/admin/EditClassPage.vue";
 import ClassStudentsPage from "../pages/admin/ClassStudentsPage.vue";
 import DetailClassesPage from "../pages/admin/DetailClassesPage.vue";
 import ListSiswaPage from "../pages/admin/users/ListSiswaPage.vue";
+import AddSiswaPage from "../pages/admin/users/AddSiswaPage.vue";
+import EditSiswaProfilePage from "../pages/admin/users/EditSiswaProfilePage.vue";
+import EditSiswaPasswordPage from "../pages/admin/users/EditSiswaPasswordPage.vue";
 import ListGuruPage from "../pages/admin/users/ListGuruPage.vue";
 import DetailUserPage from "../pages/admin/users/DetailUserPage.vue";
 import EditLessonsPage from "../pages/admin/EditLessonsPage.vue";
@@ -166,6 +169,24 @@ export default [
                 name: "adminListSiswa",
                 component: ListSiswaPage,
                 meta: { title: "Daftar Siswa", requiresAuth: true }
+            },
+            {
+                path: "users/tambah",
+                name: "adminAddSiswa",
+                component: AddSiswaPage,
+                meta: { title: "Tambah Siswa", requiresAuth: true }
+            },
+            {
+                path: "users/:id/edit-profile",
+                name: "adminEditSiswaProfile",
+                component: EditSiswaProfilePage,
+                meta: { title: "Edit Profil Siswa", requiresAuth: true }
+            },
+            {
+                path: "users/:id/edit-password",
+                name: "adminEditSiswaPassword",
+                component: EditSiswaPasswordPage,
+                meta: { title: "Edit Password Siswa", requiresAuth: true }
             },
             {
                 path: "users/:id",
