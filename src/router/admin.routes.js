@@ -13,6 +13,10 @@ import AddSiswaPage from "../pages/admin/users/AddSiswaPage.vue";
 import EditSiswaProfilePage from "../pages/admin/users/EditSiswaProfilePage.vue";
 import EditSiswaPasswordPage from "../pages/admin/users/EditSiswaPasswordPage.vue";
 import ListGuruPage from "../pages/admin/users/ListGuruPage.vue";
+import AddGuruPage from "../pages/admin/users/AddGuruPage.vue";
+import EditGuruProfilePage from "../pages/admin/users/EditGuruProfilePage.vue";
+import EditGuruPasswordPage from "../pages/admin/users/EditGuruPasswordPage.vue";
+import DetailGuruPage from "../pages/admin/users/DetailGuruPage.vue";
 import DetailUserPage from "../pages/admin/users/DetailUserPage.vue";
 import EditLessonsPage from "../pages/admin/EditLessonsPage.vue";
 import DetailLessonsPage from "../pages/admin/DetailLessonsPage.vue";
@@ -201,10 +205,28 @@ export default [
                 meta: { title: "Daftar Guru", requiresAuth: true }
             },
             {
+                path: "users/guru/tambah",
+                name: "adminAddGuru",
+                component: AddGuruPage,
+                meta: { title: "Tambah Guru", requiresAuth: true }
+            },
+            {
                 path: "users/guru/:id",
                 name: "adminDetailGuru",
-                component: DetailUserPage,
+                component: DetailGuruPage,
                 meta: { title: "Detail Guru", requiresAuth: true }
+            },
+            {
+                path: "users/guru/:id/edit-profile",
+                name: "adminEditGuruProfile",
+                component: EditGuruProfilePage,
+                meta: { title: "Edit Profil Guru", requiresAuth: true }
+            },
+            {
+                path: "users/guru/:id/edit-password",
+                name: "adminEditGuruPassword",
+                component: EditGuruPasswordPage,
+                meta: { title: "Edit Password Guru", requiresAuth: true }
             },
             {
                 path: "users/kuis/:id",
