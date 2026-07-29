@@ -19,13 +19,19 @@ export const getAllStudentAnswersAPI = async () => {
 }
 
 export const getAllQuizResultsAPI = async () => {
-    const response = await axiosInstance.get(`users/quizzes/results`);
+    const response = await axiosInstance.get(`users/answer-history`);
 
     return response.data;
 }
 
 export const getQuizResultsByIdAPI = async (quizId) => {
-    const response = await axiosInstance.get(`users/quizzes/${quizId}/results`);
+    const response = await axiosInstance.get(`users/answer-history/quiz/${quizId}`);
+
+    return response.data;
+}
+
+export const getQuizWithLessonAndQuestionsAPI = async (quizId) => {
+    const response = await axiosInstance.get(`users/quiz/${quizId}/LessonQuestions`);
 
     return response.data;
 }

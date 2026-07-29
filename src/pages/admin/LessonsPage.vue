@@ -50,6 +50,15 @@ const filteredLessons = computed(() => {
 
 const filterClassId = ref(null);
 
+const getQuizCount = (lesson) => {
+  if (!lesson) return 0;
+  if (typeof lesson.quizzes_count === "number") return lesson.quizzes_count;
+  if (typeof lesson.quiz_count === "number") return lesson.quiz_count;
+  if (Array.isArray(lesson.quizzes)) return lesson.quizzes.length;
+  if (lesson.quiz) return 1;
+  return 0;
+};
+
 const deleteLesson = async (lessonId) => {
   Swal.fire({
     title: "Apakah Anda yakin ingin menghapus pelajaran ini?",
@@ -180,15 +189,19 @@ const deleteLesson = async (lessonId) => {
                 </div>
               </div>
             </td>
-            <td class="font-medium">{{ lesson.title }}</td>
-            <td class="max-w-xs">
-              <p class="truncate">{{ lesson.description }}</p>
+            <td class="font-medium max-w-[200px]">
+              <div class="truncate" :title="lesson.title">{{ lesson.title }}</div>
             </td>
             <td class="max-w-xs">
-              {{ lesson.content }}
+              <div class="truncate" :title="lesson.description">{{ lesson.description || '-' }}</div>
             </td>
-            <td>{{ lesson.class?.name || 'Tidak ada kelas' }}</td>
-            <td>{{ lesson.quiz_count }}</td>
+            <td class="max-w-xs">
+              <div class="truncate" :title="lesson.content">{{ lesson.content || '-' }}</div>
+            </td>
+            <td class="max-w-[150px]">
+              <div class="truncate" :title="lesson.class?.name">{{ lesson.class?.name || 'Tidak ada kelas' }}</div>
+            </td>
+            <td>{{ getQuizCount(lesson) }}</td>
             <td class="flex gap-2">
               <router-link
                 :to="`/admin/pelajaran/${lesson.id}`"
@@ -204,9 +217,9 @@ const deleteLesson = async (lessonId) => {
               </router-link>
               <router-link
                 :to="`/admin/pelajaran/${lesson.id}/kuis`"
-                class="btn btn-sm btn-success"
+                class="btn btn-sm btn-success text-white"
               >
-                Kuis
+                Kuis ({{ getQuizCount(lesson) }})
               </router-link>
               <router-link
                 :to="`/admin/pelajaran/${lesson.id}/edit`"
@@ -224,7 +237,7 @@ const deleteLesson = async (lessonId) => {
             </td>
           </tr>
           <tr v-if="filteredLessons.length === 0">
-            <td colspan="6" class="text-center py-4">
+            <td colspan="7" class="text-center py-4">
               Belum ada pelajaran. Tambahkan pelajaran baru.
             </td>
           </tr>

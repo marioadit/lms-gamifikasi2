@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 
 const props = defineProps({
     matchPairs: {
@@ -15,77 +15,98 @@ const props = defineProps({
 const emit = defineEmits(['update:matches']);
 
 // State
-const draggedItem = ref(null);
-const matchPairAnswers = ref(new Map());
+const selectedLeftId = ref(null);
+const selectedRightId = ref(null);
+const matchPairAnswers = ref(new Map()); // Map<leftId, rightId>
+const rightItemsList = ref([]);
 
-// Computed
-const leftItems = computed(() => props.matchPairs);
+// Colors for visual pair indicators
+const pairColors = [
+    { bg: 'bg-emerald-100', border: 'border-emerald-500', text: 'text-emerald-800', badge: 'bg-emerald-500' },
+    { bg: 'bg-blue-100', border: 'border-blue-500', text: 'text-blue-800', badge: 'bg-blue-500' },
+    { bg: 'bg-purple-100', border: 'border-purple-500', text: 'text-purple-800', badge: 'bg-purple-500' },
+    { bg: 'bg-amber-100', border: 'border-amber-500', text: 'text-amber-800', badge: 'bg-amber-500' },
+    { bg: 'bg-pink-100', border: 'border-pink-500', text: 'text-pink-800', badge: 'bg-pink-500' },
+    { bg: 'bg-teal-100', border: 'border-teal-500', text: 'text-teal-800', badge: 'bg-teal-500' },
+];
 
-const rightItems = computed(() => {
-    // Create a copy of the match pairs
-    const items = props.matchPairs.map(pair => ({
+const initRightItems = () => {
+    if (!props.matchPairs || props.matchPairs.length === 0) {
+        rightItemsList.value = [];
+        return;
+    }
+    const items = props.matchPairs.map((pair, index) => ({
         id: pair.id,
-        // Randomly choose between original and shuffled images
-        right_image: Math.random() < 0.5 ? pair.right_image : pair.left_image,
-        right_text: Math.random() < 0.5 ? pair.right_text : pair.left_text,
-        original_right_image: pair.right_image,
-        original_right_text: pair.right_text,
-        original_left_image: pair.left_image,
-        original_left_text: pair.left_text
+        right_image: pair.right_image || pair.image,
+        right_text: pair.right_text || pair.text || pair.option_text || `Opsi ${index + 1}`
     }));
+    // Shuffle right items once
+    rightItemsList.value = [...items].sort(() => Math.random() - 0.5);
+};
 
-    // Shuffle the array
-    return items.sort(() => Math.random() - 0.5);
-});
+onMounted(initRightItems);
+watch(() => props.matchPairs, initRightItems, { deep: true });
 
-// Add new refs for animations and touch support
-const isDragging = ref(false);
-const touchStartX = ref(0);
-const touchStartY = ref(0);
+const leftItems = computed(() => props.matchPairs || []);
+const rightItems = computed(() => rightItemsList.value);
 
-// Methods
 const getFullImageUrl = (imagePath) => {
     if (!imagePath) return null;
+    if (imagePath.startsWith('http')) return imagePath;
     return `${props.baseUrl}/${imagePath}`;
 };
 
-const handleDragStart = (e, item, type) => {
-    draggedItem.value = { ...item, type };
-    e.target.classList.add('dragging');
-    if (e.target.querySelector('img')) {
-        const img = e.target.querySelector('img');
-        e.dataTransfer.setDragImage(img, 0, 0);
+// Selection Logic
+const selectLeftItem = (leftId) => {
+    if (selectedLeftId.value === leftId) {
+        selectedLeftId.value = null; // Unselect if clicked again
+        return;
+    }
+
+    selectedLeftId.value = leftId;
+
+    // If right item is already selected, pair them!
+    if (selectedRightId.value !== null) {
+        makePair(leftId, selectedRightId.value);
+        selectedLeftId.value = null;
+        selectedRightId.value = null;
     }
 };
 
-const handleDragEnd = (e) => {
-    e.target.classList.remove('dragging');
-    draggedItem.value = null;
-};
-
-const handleDragOver = (e) => {
-    e.preventDefault();
-    e.target.closest('.droppable')?.classList.add('drag-over');
-};
-
-const handleDragLeave = (e) => {
-    e.target.closest('.droppable')?.classList.remove('drag-over');
-};
-
-const handleDrop = (e, targetItem) => {
-    e.preventDefault();
-    e.target.closest('.droppable')?.classList.remove('drag-over');
-    
-    if (!draggedItem.value) return;
-
-    // Handle matching
-    if (draggedItem.value.type === 'left' && targetItem.type === 'right') {
-        matchPairAnswers.value.set(draggedItem.value.id, targetItem.id);
-    } else if (draggedItem.value.type === 'right' && targetItem.type === 'left') {
-        matchPairAnswers.value.set(targetItem.id, draggedItem.value.id);
+const selectRightItem = (rightId) => {
+    if (selectedRightId.value === rightId) {
+        selectedRightId.value = null; // Unselect if clicked again
+        return;
     }
 
-    // Emit updated matches
+    selectedRightId.value = rightId;
+
+    // If left item is already selected, pair them!
+    if (selectedLeftId.value !== null) {
+        makePair(selectedLeftId.value, rightId);
+        selectedLeftId.value = null;
+        selectedRightId.value = null;
+    }
+};
+
+const makePair = (leftId, rightId) => {
+    // Remove previous pairs involving leftId or rightId
+    for (const [lId, rId] of matchPairAnswers.value.entries()) {
+        if (lId === leftId || rId === rightId) {
+            matchPairAnswers.value.delete(lId);
+        }
+    }
+
+    matchPairAnswers.value.set(leftId, rightId);
+    emitMatches();
+};
+
+const removePairByLeft = (leftId) => {
+    matchPairAnswers.value.delete(leftId);
+    emitMatches();
+};
+
+const emitMatches = () => {
     const answersArray = Array.from(matchPairAnswers.value.entries()).map(([leftId, rightId]) => ({
         left_id: leftId,
         right_id: rightId
@@ -93,327 +114,257 @@ const handleDrop = (e, targetItem) => {
     emit('update:matches', answersArray);
 };
 
-const isMatched = (itemId) => {
-    if (matchPairAnswers.value.has(itemId)) {
-        return true;
-    }
-    return Array.from(matchPairAnswers.value.values()).includes(itemId);
+// Helpers for paired UI
+const getMatchedRightId = (leftId) => {
+    return matchPairAnswers.value.get(leftId) || null;
 };
 
-const getMatchedPair = (itemId) => {
-    if (matchPairAnswers.value.has(itemId)) {
-        return matchPairAnswers.value.get(itemId);
-    }
-    for (const [leftId, rightId] of matchPairAnswers.value.entries()) {
-        if (rightId === itemId) {
-            return leftId;
-        }
+const getMatchedLeftId = (rightId) => {
+    for (const [lId, rId] of matchPairAnswers.value.entries()) {
+        if (rId === rightId) return lId;
     }
     return null;
 };
 
+const getPairColorClass = (leftId) => {
+    const keys = Array.from(matchPairAnswers.value.keys());
+    const index = keys.indexOf(leftId);
+    if (index === -1) return null;
+    return pairColors[index % pairColors.length];
+};
+
+const getPairColorClassForRight = (rightId) => {
+    const leftId = getMatchedLeftId(rightId);
+    if (!leftId) return null;
+    return getPairColorClass(leftId);
+};
+
+const getMatchedRightText = (leftId) => {
+    const rId = getMatchedRightId(leftId);
+    if (!rId) return '';
+    const item = rightItemsList.value.find(i => i.id === rId);
+    return item?.right_text || `Opsi #${rId}`;
+};
+
+const getMatchedLeftText = (rightId) => {
+    const lId = getMatchedLeftId(rightId);
+    if (!lId) return '';
+    const item = props.matchPairs.find(i => i.id === lId);
+    return item?.left_text || item?.text || `Soal #${lId}`;
+};
+
 const clearMatches = () => {
     matchPairAnswers.value.clear();
+    selectedLeftId.value = null;
+    selectedRightId.value = null;
     emit('update:matches', []);
 };
 
-const getConnectionLineStyle = (leftId, rightId) => {
-    const leftEl = document.querySelector(`[data-pair-id="left-${leftId}"]`);
-    const rightEl = document.querySelector(`[data-pair-id="right-${rightId}"]`);
-    
-    if (!leftEl || !rightEl) return {};
-    
-    const leftRect = leftEl.getBoundingClientRect();
-    const rightRect = rightEl.getBoundingClientRect();
-    
-    const containerRect = leftEl.closest('.kanban-container').getBoundingClientRect();
-    
-    const x1 = leftRect.right - containerRect.left;
-    const y1 = leftRect.top + (leftRect.height / 2) - containerRect.top;
-    const x2 = rightRect.left - containerRect.left;
-    const y2 = rightRect.top + (rightRect.height / 2) - containerRect.top;
-    
-    const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-    const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
-    
-    return {
-        left: `${x1}px`,
-        top: `${y1}px`,
-        width: `${length}px`,
-        transform: `rotate(${angle}deg)`
-    };
-};
-
-// Add function to reshuffle right items
 const reshuffleRightItems = () => {
-    // Force recomputation of rightItems
-    rightItems.value = rightItems.value.map(item => ({
-        ...item,
-        right_image: Math.random() < 0.5 ? item.original_right_image : item.original_left_image,
-        right_text: Math.random() < 0.5 ? item.original_right_text : item.original_left_text
-    })).sort(() => Math.random() - 0.5);
-    
-    // Clear existing matches
+    initRightItems();
     clearMatches();
-};
-
-// Add touch event handlers
-const handleTouchStart = (e, item, type) => {
-    touchStartX.value = e.touches[0].clientX;
-    touchStartY.value = e.touches[0].clientY;
-    handleDragStart(e, item, type);
-};
-
-const handleTouchMove = (e) => {
-    if (!isDragging.value) return;
-    e.preventDefault();
-    const touch = e.touches[0];
-    const elements = document.elementsFromPoint(touch.clientX, touch.clientY);
-    const droppable = elements.find(el => el.classList.contains('droppable'));
-    
-    if (droppable) {
-        droppable.classList.add('drag-over');
-    }
-};
-
-const handleTouchEnd = (e) => {
-    if (!isDragging.value) return;
-    const touch = e.changedTouches[0];
-    const elements = document.elementsFromPoint(touch.clientX, touch.clientY);
-    const droppable = elements.find(el => el.classList.contains('droppable'));
-    
-    if (droppable) {
-        const itemId = droppable.dataset.pairId?.split('-')[1];
-        const type = droppable.dataset.pairId?.split('-')[0];
-        if (itemId && type) {
-            handleDrop(e, { id: parseInt(itemId), type });
-        }
-    }
-    
-    isDragging.value = false;
-    document.querySelectorAll('.drag-over').forEach(el => {
-        el.classList.remove('drag-over');
-    });
 };
 </script>
 
 <template>
-    <div class="kanban-container space-y-4 md:space-y-8 p-2 md:p-4">
-        <!-- Fun Header -->
-        <div class="text-center mb-6">
-            <h2 class="text-2xl md:text-3xl font-bold text-indigo-600 mb-2">🎮 Matching Game! 🎯</h2>
-            <p class="text-gray-600 text-sm md:text-base">Drag and match the correct pairs!</p>
-        </div>
-
-        <!-- Mobile Instructions -->
-        <div class="md:hidden bg-yellow-50 rounded-xl p-4 mb-4 text-center">
-            <p class="text-yellow-700">
-                <span class="text-xl">👆</span> Tap and hold to drag items
+    <div class="kanban-container space-y-6 p-2 md:p-4">
+        <!-- Header & Instructions -->
+        <div class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-5 rounded-3xl text-white shadow-lg text-center space-y-2">
+            <h2 class="text-2xl md:text-3xl font-extrabold flex items-center justify-center gap-2">
+                <span>🎮</span> Pasangkan Gambar / Teks 🎯
+            </h2>
+            <p class="text-sm md:text-base font-medium opacity-90">
+                Pilih radio button di kiri dan kanan untuk menghubungkan pasangan gambar dengan tepat!
             </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-12 relative">
-            <!-- Left Column -->
+        <!-- Matching Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
+            <!-- Left Column (Pertanyaan / Gambar Kiri) -->
             <div class="space-y-4">
-                <div class="bg-gradient-to-r from-blue-100 to-blue-50 rounded-xl p-4">
-                    <h3 class="text-lg md:text-xl font-bold text-blue-700 mb-4 flex items-center">
-                        <span class="text-2xl mr-2">🎁</span> Your Items
-                    </h3>
-                    <div class="space-y-4">
-                        <div v-for="item in leftItems" :key="item.id"
-                             :data-pair-id="'left-' + item.id"
-                             class="droppable relative bg-white border-3 rounded-xl p-4 transition-all transform hover:scale-102"
-                             :class="{
-                                 'matched': isMatched(item.id),
-                                 'border-blue-300 shadow-lg': !isMatched(item.id)
-                             }"
-                             draggable="true"
-                             @dragstart="handleDragStart($event, item, 'left')"
-                             @dragend="handleDragEnd($event)"
-                             @dragover="handleDragOver($event)"
-                             @dragleave="handleDragLeave($event)"
-                             @drop="handleDrop($event, { id: item.id, type: 'left' })"
-                             @touchstart="handleTouchStart($event, item, 'left')"
-                             @touchmove="handleTouchMove($event)"
-                             @touchend="handleTouchEnd($event)">
-                            
-                            <div class="draggable flex flex-col items-center">
-                                <div class="relative w-full aspect-square mb-3">
-                                    <img :src="getFullImageUrl(item.left_image)"
-                                         :alt="item.left_text"
-                                         class="absolute inset-0 w-full h-full object-contain rounded-lg">
+                <div class="bg-blue-50/80 p-4 rounded-3xl border border-blue-200 space-y-3">
+                    <div class="flex items-center justify-between border-b border-blue-200 pb-2">
+                        <h3 class="font-bold text-blue-800 text-lg flex items-center gap-2">
+                            <span>📌</span> Pilihan Kiri (Soal)
+                        </h3>
+                        <span class="text-xs font-semibold text-blue-600">
+                            {{ matchPairAnswers.size }} / {{ leftItems.length }} Terpasang
+                        </span>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div 
+                            v-for="(item, idx) in leftItems" 
+                            :key="item.id"
+                            @click="selectLeftItem(item.id)"
+                            class="relative bg-white rounded-2xl p-4 border-2 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md"
+                            :class="[
+                                getMatchedRightId(item.id) 
+                                    ? `${getPairColorClass(item.id)?.border} ${getPairColorClass(item.id)?.bg}` 
+                                    : selectedLeftId === item.id 
+                                        ? 'border-indigo-600 ring-4 ring-indigo-200 bg-indigo-50/90' 
+                                        : 'border-blue-200 hover:border-blue-400 bg-white'
+                            ]"
+                        >
+                            <div class="flex items-center justify-between gap-3">
+                                <!-- Item Content -->
+                                <div class="flex items-center gap-3 flex-1 min-w-0">
+                                    <span class="w-7 h-7 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center shrink-0">
+                                        {{ idx + 1 }}
+                                    </span>
+
+                                    <img 
+                                        v-if="item.left_image || item.image"
+                                        :src="getFullImageUrl(item.left_image || item.image)"
+                                        :alt="item.left_text"
+                                        class="h-16 w-16 object-cover rounded-xl border border-gray-200 shrink-0"
+                                    />
+
+                                    <div class="min-w-0">
+                                        <p class="font-bold text-gray-800 text-sm md:text-base leading-snug">
+                                            {{ item.left_text || item.text || item.option_text }}
+                                        </p>
+                                        
+                                        <!-- Connected Badge -->
+                                        <div v-if="getMatchedRightId(item.id)" class="mt-1 flex items-center gap-1 text-xs font-bold text-emerald-700">
+                                            <span>🔗 Terhubung:</span>
+                                            <span class="truncate max-w-[150px] underline">{{ getMatchedRightText(item.id) }}</span>
+                                        </div>
+                                        <div v-else-if="selectedLeftId === item.id" class="mt-1 text-xs font-semibold text-indigo-600 animate-pulse">
+                                            👉 Pilih pasangan di sebelah kanan...
+                                        </div>
+                                    </div>
                                 </div>
-                                <p class="text-center font-bold text-blue-700 text-lg">{{ item.left_text }}</p>
-                            </div>
-                            <!-- Success Animation -->
-                            <div v-if="isMatched(item.id)" class="absolute -top-2 -right-2 animate-bounce">
-                                <span class="text-2xl">⭐</span>
+
+                                <!-- Radio Connector Circle (Right Edge) -->
+                                <div class="shrink-0 flex items-center gap-2">
+                                    <div 
+                                        class="w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-200"
+                                        :class="[
+                                            getMatchedRightId(item.id) 
+                                                ? 'border-emerald-600 bg-emerald-600 text-white' 
+                                                : selectedLeftId === item.id 
+                                                    ? 'border-indigo-600 bg-indigo-600 text-white scale-110 shadow-lg' 
+                                                    : 'border-gray-300 bg-gray-50 hover:border-indigo-400'
+                                        ]"
+                                    >
+                                        <span v-if="getMatchedRightId(item.id)" class="text-xs font-bold">✓</span>
+                                        <span v-else-if="selectedLeftId === item.id" class="text-xs font-bold">🔘</span>
+                                        <span v-else class="w-3 h-3 rounded-full bg-gray-300"></span>
+                                    </div>
+
+                                    <!-- Unpair Button -->
+                                    <button 
+                                        v-if="getMatchedRightId(item.id)"
+                                        @click.stop="removePairByLeft(item.id)"
+                                        class="btn btn-circle btn-xs btn-ghost text-red-500 hover:bg-red-100"
+                                        title="Lepas Pasangan"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Column -->
+            <!-- Right Column (Jawaban / Opsi Kanan) -->
             <div class="space-y-4">
-                <div class="bg-gradient-to-r from-purple-100 to-purple-50 rounded-xl p-4">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg md:text-xl font-bold text-purple-700 flex items-center">
-                            <span class="text-2xl mr-2">🎯</span> Match These!
+                <div class="bg-purple-50/80 p-4 rounded-3xl border border-purple-200 space-y-3">
+                    <div class="flex items-center justify-between border-b border-purple-200 pb-2">
+                        <h3 class="font-bold text-purple-800 text-lg flex items-center gap-2">
+                            <span>🎯</span> Pilihan Kanan (Pasangan)
                         </h3>
-                        <button @click="reshuffleRightItems"
-                                class="btn btn-primary btn-sm md:btn-md animate-pulse"
-                                :disabled="matchPairAnswers.size > 0">
-                            <span class="text-xl mr-2">🔄</span>
-                            <span class="hidden md:inline">Shuffle</span>
+                        <button 
+                            @click="reshuffleRightItems" 
+                            class="btn btn-xs btn-outline btn-primary rounded-xl"
+                            :disabled="matchPairAnswers.size > 0"
+                        >
+                            🔄 Acak
                         </button>
                     </div>
-                    <div class="space-y-4">
-                        <div v-for="item in rightItems" :key="item.id"
-                             :data-pair-id="'right-' + item.id"
-                             class="droppable relative bg-white border-3 rounded-xl p-4 transition-all transform hover:scale-102"
-                             :class="{
-                                 'matched': isMatched(item.id),
-                                 'border-purple-300 shadow-lg': !isMatched(item.id)
-                             }"
-                             draggable="true"
-                             @dragstart="handleDragStart($event, item, 'right')"
-                             @dragend="handleDragEnd($event)"
-                             @dragover="handleDragOver($event)"
-                             @dragleave="handleDragLeave($event)"
-                             @drop="handleDrop($event, { id: item.id, type: 'right' })"
-                             @touchstart="handleTouchStart($event, item, 'right')"
-                             @touchmove="handleTouchMove($event)"
-                             @touchend="handleTouchEnd($event)">
-                            
-                            <div class="draggable flex flex-col items-center">
-                                <div class="relative w-full aspect-square mb-3">
-                                    <img :src="getFullImageUrl(item.right_image)"
-                                         :alt="item.right_text"
-                                         class="absolute inset-0 w-full h-full object-contain rounded-lg">
+
+                    <div class="space-y-3">
+                        <div 
+                            v-for="item in rightItems" 
+                            :key="item.id"
+                            @click="selectRightItem(item.id)"
+                            class="relative bg-white rounded-2xl p-4 border-2 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md"
+                            :class="[
+                                getMatchedLeftId(item.id) 
+                                    ? `${getPairColorClassForRight(item.id)?.border} ${getPairColorClassForRight(item.id)?.bg}` 
+                                    : selectedRightId === item.id 
+                                        ? 'border-indigo-600 ring-4 ring-indigo-200 bg-indigo-50/90' 
+                                        : 'border-purple-200 hover:border-purple-400 bg-white'
+                            ]"
+                        >
+                            <div class="flex items-center justify-between gap-3">
+                                <!-- Radio Connector Circle (Left Edge) -->
+                                <div class="shrink-0 flex items-center gap-2">
+                                    <div 
+                                        class="w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-200"
+                                        :class="[
+                                            getMatchedLeftId(item.id) 
+                                                ? 'border-emerald-600 bg-emerald-600 text-white' 
+                                                : selectedRightId === item.id 
+                                                    ? 'border-indigo-600 bg-indigo-600 text-white scale-110 shadow-lg' 
+                                                    : 'border-gray-300 bg-gray-50 hover:border-indigo-400'
+                                        ]"
+                                    >
+                                        <span v-if="getMatchedLeftId(item.id)" class="text-xs font-bold">✓</span>
+                                        <span v-else-if="selectedRightId === item.id" class="text-xs font-bold">🔘</span>
+                                        <span v-else class="w-3 h-3 rounded-full bg-gray-300"></span>
+                                    </div>
                                 </div>
-                                <p class="text-center font-bold text-purple-700 text-lg">{{ item.right_text }}</p>
-                            </div>
-                            <!-- Success Animation -->
-                            <div v-if="isMatched(item.id)" class="absolute -top-2 -right-2 animate-bounce">
-                                <span class="text-2xl">⭐</span>
+
+                                <!-- Item Content -->
+                                <div class="flex items-center gap-3 flex-1 min-w-0">
+                                    <img 
+                                        v-if="item.right_image"
+                                        :src="getFullImageUrl(item.right_image)"
+                                        :alt="item.right_text"
+                                        class="h-16 w-16 object-cover rounded-xl border border-gray-200 shrink-0"
+                                    />
+
+                                    <div class="min-w-0">
+                                        <p class="font-bold text-gray-800 text-sm md:text-base leading-snug">
+                                            {{ item.right_text }}
+                                        </p>
+
+                                        <!-- Connected Badge -->
+                                        <div v-if="getMatchedLeftId(item.id)" class="mt-1 flex items-center gap-1 text-xs font-bold text-emerald-700">
+                                            <span>🔗 Terhubung:</span>
+                                            <span class="truncate max-w-[150px] underline">{{ getMatchedLeftText(item.id) }}</span>
+                                        </div>
+                                        <div v-else-if="selectedRightId === item.id" class="mt-1 text-xs font-semibold text-indigo-600 animate-pulse">
+                                            👉 Pilih pasangan di sebelah kiri...
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Connection Lines (only show on desktop) -->
-            <div class="hidden md:block">
-                <div v-for="[leftId, rightId] in Array.from(matchPairAnswers)" :key="leftId + '-' + rightId"
-                     class="match-line"
-                     :style="getConnectionLineStyle(leftId, rightId)">
-                </div>
-            </div>
         </div>
 
-        <!-- Action Buttons -->
-        <div class="flex justify-center gap-4 mt-6">
-            <button @click="clearMatches"
-                    class="btn btn-error btn-outline btn-lg"
-                    :disabled="matchPairAnswers.size === 0">
-                <span class="text-xl mr-2">🔄</span> Start Over
+        <!-- Reset Button -->
+        <div class="flex justify-center pt-2">
+            <button 
+                @click="clearMatches"
+                class="btn btn-error btn-outline rounded-2xl px-6"
+                :disabled="matchPairAnswers.size === 0"
+            >
+                🔄 Reset Semua Pasangan
             </button>
-        </div>
-
-        <!-- Success Message -->
-        <div v-if="matchPairAnswers.size === leftItems.length"
-             class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <div class="bg-white rounded-xl p-8 text-center transform animate-bounce">
-                <h3 class="text-2xl font-bold text-green-600 mb-4">
-                    🎉 Great Job! 🌟
-                </h3>
-                <p class="text-gray-600">You matched all the pairs correctly!</p>
-            </div>
         </div>
     </div>
 </template>
 
 <style scoped>
 .kanban-container {
-    position: relative;
-    min-height: 400px;
-    max-width: 1200px;
+    max-width: 1000px;
     margin: 0 auto;
 }
-
-.draggable {
-    cursor: grab;
-    transition: all 0.3s;
-    user-select: none;
-    touch-action: none;
-}
-
-.draggable:active {
-    cursor: grabbing;
-}
-
-.dragging {
-    opacity: 0.7;
-    transform: scale(0.95);
-}
-
-.droppable {
-    transition: all 0.3s;
-}
-
-.drag-over {
-    background-color: rgba(147, 197, 253, 0.2);
-    transform: scale(1.05);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
-.matched {
-    border-color: #10B981 !important;
-    background-color: rgba(16, 185, 129, 0.1);
-    transform: scale(1.02);
-}
-
-.match-line {
-    position: absolute;
-    height: 4px;
-    background: linear-gradient(90deg, #60A5FA, #8B5CF6);
-    transform-origin: left center;
-    z-index: 1;
-    border-radius: 2px;
-    opacity: 0.6;
-}
-
-.border-3 {
-    border-width: 3px;
-}
-
-.hover\:scale-102:hover {
-    transform: scale(1.02);
-}
-
-@keyframes bounce {
-    0%, 100% {
-        transform: translateY(-5%);
-        animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
-    }
-    50% {
-        transform: translateY(0);
-        animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
-    }
-}
-
-.animate-bounce {
-    animation: bounce 1s infinite;
-}
-
-@media (max-width: 768px) {
-    .kanban-container {
-        padding: 0.5rem;
-    }
-    
-    .droppable {
-        margin-bottom: 1rem;
-    }
-}
-</style> 
+</style>

@@ -337,6 +337,12 @@ const previousQuestion = () => {
   }
 };
 
+const handleMatchUpdate = (matches) => {
+  if (currentQuestion.value) {
+    answers.value[currentQuestion.value.id] = matches;
+  }
+};
+
 const submitQuiz = async () => {
   if (isSubmitting.value) return;
   isSubmitting.value = true;
@@ -420,182 +426,6 @@ const submitQuiz = async () => {
 onBeforeUnmount(() => {
   clearQuizStorage();
 });
-
-// Add functions for drag and drop
-const handleDragStart = (e, item, type) => {
-  draggedItem.value = { ...item, type };
-  e.target.classList.add("dragging");
-  // Set drag image (optional)
-  if (e.target.querySelector("img")) {
-    const img = e.target.querySelector("img");
-    e.dataTransfer.setDragImage(img, 0, 0);
-  }
-};
-
-const handleDragEnd = (e) => {
-  e.target.classList.remove("dragging");
-  draggedItem.value = null;
-};
-
-const handleDragOver = (e) => {
-  e.preventDefault();
-  e.target.closest(".droppable")?.classList.add("drag-over");
-};
-
-const handleDragLeave = (e) => {
-  e.target.closest(".droppable")?.classList.remove("drag-over");
-};
-
-const handleDrop = (e, targetItem) => {
-  e.preventDefault();
-  e.target.closest(".droppable")?.classList.remove("drag-over");
-
-  if (!draggedItem.value) return;
-
-  // Handle matching
-  if (draggedItem.value.type === "left" && targetItem.type === "right") {
-    matchPairAnswers.value.set(draggedItem.value.id, targetItem.id);
-  } else if (draggedItem.value.type === "right" && targetItem.type === "left") {
-    matchPairAnswers.value.set(targetItem.id, draggedItem.value.id);
-  }
-
-  // Save answers
-  if (currentQuestion.value) {
-    const answersArray = Array.from(matchPairAnswers.value.entries()).map(
-      ([leftId, rightId]) => ({
-        left_id: leftId,
-        right_id: rightId,
-      })
-    );
-    answers.value[currentQuestion.value.id] = answersArray;
-
-    // Save to session storage
-    sessionStorage.setItem(
-      "quizState",
-      JSON.stringify({
-        currentQuestionIndex: currentQuestionIndex.value,
-        answers: answers.value,
-        timeLeft: timeLeft.value,
-        quizStartTime: quizStartTime.value,
-      })
-    );
-  }
-};
-
-const isMatched = (itemId) => {
-  if (matchPairAnswers.value.has(itemId)) {
-    return true;
-  }
-  return Array.from(matchPairAnswers.value.values()).includes(itemId);
-};
-
-const getMatchedPair = (itemId) => {
-  if (matchPairAnswers.value.has(itemId)) {
-    return matchPairAnswers.value.get(itemId);
-  }
-  for (const [leftId, rightId] of matchPairAnswers.value.entries()) {
-    if (rightId === itemId) {
-      return leftId;
-    }
-  }
-  return null;
-};
-
-// Add to style section
-const additionalStyles = `
-.draggable {
-    cursor: grab;
-    transition: all 0.2s;
-}
-
-.draggable:active {
-    cursor: grabbing;
-}
-
-.dragging {
-    opacity: 0.5;
-    transform: scale(0.95);
-}
-
-.droppable {
-    transition: all 0.2s;
-}
-
-.drag-over {
-    background-color: rgba(147, 197, 253, 0.1);
-    transform: scale(1.02);
-}
-
-.matched {
-    border-color: #10B981;
-    background-color: rgba(16, 185, 129, 0.1);
-}
-
-.match-line {
-    position: absolute;
-    height: 2px;
-    background-color: #10B981;
-    transform-origin: left center;
-    z-index: 1;
-}
-`;
-
-// Update the match_image template section
-const matchImageTemplate = `
-<!-- Match Image Type -->
-<div v-else-if="currentQuestion.type === 'match_image'">
-    <KanbanMatch
-        :match-pairs="currentQuestion.match_pairs"
-        :base-url="base_url"
-        @update:matches="handleMatchUpdate"
-    />
-</div>
-`;
-
-// Add the handleMatchUpdate function
-const handleMatchUpdate = (matches) => {
-  if (currentQuestion.value) {
-    answers.value[currentQuestion.value.id] = matches;
-    // Save to session storage
-    sessionStorage.setItem(
-      "quizState",
-      JSON.stringify({
-        currentQuestionIndex: currentQuestionIndex.value,
-        answers: answers.value,
-        timeLeft: timeLeft.value,
-        quizStartTime: quizStartTime.value,
-      })
-    );
-  }
-};
-
-// Add helper function for connection lines
-const getConnectionLineStyle = (leftId, rightId) => {
-  const leftEl = document.querySelector(`[data-pair-id="${leftId}"]`);
-  const rightEl = document.querySelector(`[data-pair-id="${rightId}"]`);
-
-  if (!leftEl || !rightEl) return {};
-
-  const leftRect = leftEl.getBoundingClientRect();
-  const rightRect = rightEl.getBoundingClientRect();
-
-  const containerRect = leftEl.closest(".grid").getBoundingClientRect();
-
-  const x1 = leftRect.right - containerRect.left;
-  const y1 = leftRect.top + leftRect.height / 2 - containerRect.top;
-  const x2 = rightRect.left - containerRect.left;
-  const y2 = rightRect.top + rightRect.height / 2 - containerRect.top;
-
-  const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-  const angle = (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI;
-
-  return {
-    left: `${x1}px`,
-    top: `${y1}px`,
-    width: `${length}px`,
-    transform: `rotate(${angle}deg)`,
-  };
-};
 </script>
 
 <style scoped>
@@ -881,96 +711,12 @@ const getConnectionLineStyle = (leftId, rightId) => {
               </div>
 
               <!-- Match Image Type -->
-              <div
-                v-else-if="currentQuestion.type === 'match_image'"
-                class="space-y-8"
-              >
-                <div class="grid grid-cols-2 gap-12 relative">
-                  <!-- Left Column -->
-                  <div class="space-y-4">
-                    <h3 class="text-lg font-semibold text-blue-700 mb-4">
-                      Pasangkan Gambar Kiri
-                    </h3>
-                    <div
-                      v-for="pair in currentQuestion.match_pairs"
-                      :key="pair.id"
-                      class="droppable relative bg-white border-2 rounded-xl p-4 transition-all"
-                      :class="{
-                        matched: isMatched(pair.id),
-                        'border-blue-200': !isMatched(pair.id),
-                      }"
-                      draggable="true"
-                      @dragstart="handleDragStart($event, pair, 'left')"
-                      @dragend="handleDragEnd($event)"
-                      @dragover="handleDragOver($event)"
-                      @dragleave="handleDragLeave($event)"
-                      @drop="handleDrop($event, { id: pair.id, type: 'left' })"
-                    >
-                      <div class="draggable flex flex-col items-center">
-                        <img
-                          :src="getFullImageUrl(pair.left_image)"
-                          :alt="pair.left_text"
-                          class="w-full h-40 object-contain rounded-lg mb-2"
-                        />
-                        <p class="text-center font-medium text-blue-700">
-                          {{ pair.left_text }}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Right Column -->
-                  <div class="space-y-4">
-                    <h3 class="text-lg font-semibold text-purple-700 mb-4">
-                      Pasangkan Gambar Kanan
-                    </h3>
-                    <div
-                      v-for="pair in currentQuestion.match_pairs"
-                      :key="pair.id"
-                      class="droppable relative bg-white border-2 rounded-xl p-4 transition-all"
-                      :class="{
-                        matched: isMatched(pair.id),
-                        'border-purple-200': !isMatched(pair.id),
-                      }"
-                      draggable="true"
-                      @dragstart="handleDragStart($event, pair, 'right')"
-                      @dragend="handleDragEnd($event)"
-                      @dragover="handleDragOver($event)"
-                      @dragleave="handleDragLeave($event)"
-                      @drop="handleDrop($event, { id: pair.id, type: 'right' })"
-                    >
-                      <div class="draggable flex flex-col items-center">
-                        <img
-                          :src="getFullImageUrl(pair.right_image)"
-                          :alt="pair.right_text"
-                          class="w-full h-40 object-contain rounded-lg mb-2"
-                        />
-                        <p class="text-center font-medium text-purple-700">
-                          {{ pair.right_text }}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Connection Lines -->
-                  <div
-                    v-for="[leftId, rightId] in Array.from(matchPairAnswers)"
-                    :key="leftId + '-' + rightId"
-                    class="match-line"
-                    :style="getConnectionLineStyle(leftId, rightId)"
-                  ></div>
-                </div>
-
-                <!-- Clear Matches Button -->
-                <div class="flex justify-center mt-6">
-                  <button
-                    @click="matchPairAnswers.clear()"
-                    class="btn btn-outline btn-error"
-                    :disabled="matchPairAnswers.size === 0"
-                  >
-                    Hapus Semua Pasangan
-                  </button>
-                </div>
+              <div v-else-if="currentQuestion.type === 'match_image'">
+                <KanbanMatch
+                  :match-pairs="currentQuestion.match_pairs || currentQuestion.options || currentQuestion.matchPairs || []"
+                  :base-url="base_url"
+                  @update:matches="handleMatchUpdate"
+                />
               </div>
 
               <!-- Choice Type (Original) -->

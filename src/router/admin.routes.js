@@ -33,6 +33,7 @@ import { name } from "dayjs/locale/id";
 import ResultQuizPage from "../pages/admin/quiz/ResultQuizPage.vue";
 import DetailUserQuiz from "../pages/admin/quiz/DetailUserQuiz.vue";
 import DetailQuizResultPage from "../pages/admin/quiz/DetailQuizResultPage.vue";
+import AdminProfilePage from "../pages/admin/profile/AdminProfilePage.vue";
 
 export default [
     {
@@ -40,6 +41,12 @@ export default [
         component: AppLayouts,
         meta: { requiresAuth: true },
         children: [
+            {
+                path: "profile",
+                name: "adminProfile",
+                component: AdminProfilePage,
+                meta: { title: "Profil Saya", requiresAuth: true }
+            },
             {
                 path: "",  // Empty path means this will be the default for /admin
                 name: "adminDashboard",
@@ -165,7 +172,14 @@ export default [
             {
                 path: "kuis/hasil",
                 name: "adminResultQuiz",
-                component: ResultQuizPage
+                component: ResultQuizPage,
+                meta: { title: "Hasil Kuis", requiresAuth: true }
+            },
+            {
+                path: "kuis/hasil/detail/:studentId/:quizId",
+                name: "adminAnswerHistoryDetail",
+                component: DetailQuizResultPage,
+                meta: { title: "Detail Hasil Kuis Siswa", requiresAuth: true }
             },
 
             {
@@ -227,6 +241,12 @@ export default [
                 name: "adminEditGuruPassword",
                 component: EditGuruPasswordPage,
                 meta: { title: "Edit Password Guru", requiresAuth: true }
+            },
+            {
+                path: "kuis/hasil/siswa/:studentId",
+                name: "adminStudentQuizResultsList",
+                component: DetailUserQuiz,
+                meta: { title: "Daftar Hasil Kuis Siswa", requiresAuth: true }
             },
             {
                 path: "users/kuis/:id",

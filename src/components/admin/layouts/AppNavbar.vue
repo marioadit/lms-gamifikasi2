@@ -56,15 +56,16 @@ const goToHomePage = () => {
           tabindex="0"
           class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
         >
-          <!-- <li>
+          <li>
             <router-link
-              class="text-lg font-semibold flex items-center gap-2 hover:bg-base-200 rounded-lg p-2"
+              to="/admin/profile"
+              class="text-base font-semibold flex items-center gap-2 hover:bg-base-200 rounded-lg p-2"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
                 fill="currentColor"
-                class="size-6"
+                class="w-5 h-5 text-primary"
               >
                 <path
                   fillRule="evenodd"
@@ -72,9 +73,9 @@ const goToHomePage = () => {
                   clipRule="evenodd"
                 />
               </svg>
-              <span>Profil</span>
+              <span>Profil Saya</span>
             </router-link>
-          </li> -->
+          </li>
           <!-- <li>
             <router-link
               class="text-lg font-semibold flex items-center gap-2 hover:bg-base-200 rounded-lg p-2"

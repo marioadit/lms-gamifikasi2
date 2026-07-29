@@ -150,9 +150,14 @@ watch(
           <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
             <span>🏫</span> Kelas yang Diampu
           </h2>
-          <span class="badge badge-accent font-semibold">
-            {{ taughtClasses.length }} Kelas
-          </span>
+          <div class="flex items-center gap-2">
+            <span class="badge badge-accent font-semibold">
+              {{ taughtClasses.length }} Kelas
+            </span>
+            <router-link :to="`/admin/users/guru/${detailTeacher.id}/edit-profile`" class="btn btn-xs btn-outline btn-primary">
+              ⚙️ Kelola Kelas
+            </router-link>
+          </div>
         </div>
 
         <!-- List of taught classes -->

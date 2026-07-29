@@ -209,31 +209,25 @@ const logout = () => {
 
     <!-- User Profile Section at Bottom -->
     <div class="mt-auto">
-      <div class="p-4 flex items-center gap-3">
+      <router-link
+        to="/admin/profile"
+        class="p-3 flex items-center gap-3 hover:bg-base-300 rounded-xl cursor-pointer transition-colors"
+        :class="{ 'bg-base-300 font-bold': $route.path === '/admin/profile' }"
+      >
         <div class="avatar">
-          <div class="w-12 rounded-full">
-            <img
-              src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-            />
+          <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg">
+            👤
           </div>
         </div>
         <div>
-          <h3 class="font-semibold">Admin</h3>
-          <p class="text-xs text-gray-500">Administrator</p>
+          <h3 class="font-semibold text-sm">Profil Saya ⚙️</h3>
+          <p class="text-xs text-gray-500">Edit Nama & Password</p>
         </div>
-      </div>
-
-      <!-- <router-link
-        to="/admin/pengaturan"
-        class="menu-item flex items-center gap-2 p-4 hover:bg-base-300 rounded-lg mt-2 cursor-pointer"
-      >
-        <CogIcon class="w-5 h-5" />
-        <span>Pengaturan</span>
-      </router-link> -->
+      </router-link>
 
       <button
         @click="logout"
-        class="menu-item flex items-center gap-2 p-4 hover:bg-base-300 rounded-lg cursor-pointer"
+        class="w-full menu-item flex items-center gap-2 p-3 hover:bg-base-300 rounded-xl cursor-pointer text-red-600 font-semibold mt-1"
       >
         <ArrowRightOnRectangleIcon class="w-5 h-5" />
         <span>Keluar</span>

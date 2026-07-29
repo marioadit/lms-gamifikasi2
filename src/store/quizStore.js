@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { getQuizzesAPI, getQuizByIdAPI, getQuizByLessonsAPI, createQuizAPI, updateQuizAPI, deleteQuizAPI, getAllQuizResultsAPI, getQuizResultsByIdAPI } from "../api/quiz/quizApi";
+import { getQuizzesAPI, getQuizByIdAPI, getQuizByLessonsAPI, createQuizAPI, updateQuizAPI, deleteQuizAPI, getAllQuizResultsAPI, getQuizResultsByIdAPI, getAdminAnswerHistoryAPI, getAdminAnswerHistoryDetailAPI, getAnswerHistoryByStudentAPI } from "../api/quiz/quizApi";
 import { getQuestionsByQuizIdAPI, getQuestionsByIdAPI, deleteQuestionsAPI, createQuestionsAPI } from "../api/quiz/QuestionApi";
 
 export const useQuizStore = defineStore("quiz", {
@@ -178,6 +178,51 @@ export const useQuizStore = defineStore("quiz", {
             } catch (error) {
                 console.error('Error fetching quiz results:', error);
                 throw error;
+            }
+        },
+
+        async getAdminAnswerHistory() {
+            this.loading = true;
+            this.error = null;
+            try {
+                const response = await getAdminAnswerHistoryAPI();
+                return response;
+            } catch (error) {
+                console.error('Error fetching admin answer history:', error);
+                this.error = error.response?.data?.message || error.message || "Gagal memuat hasil kuis";
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async getAdminAnswerHistoryDetail(studentId, quizId) {
+            this.loading = true;
+            this.error = null;
+            try {
+                const response = await getAdminAnswerHistoryDetailAPI(studentId, quizId);
+                return response;
+            } catch (error) {
+                console.error('Error fetching admin answer history detail:', error);
+                this.error = error.response?.data?.message || error.message || "Gagal memuat detail hasil kuis";
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async getAnswerHistoryByStudent(studentId) {
+            this.loading = true;
+            this.error = null;
+            try {
+                const response = await getAnswerHistoryByStudentAPI(studentId);
+                return response;
+            } catch (error) {
+                console.error('Error fetching student answer history:', error);
+                this.error = error.response?.data?.message || error.message || "Gagal memuat hasil kuis siswa";
+                throw error;
+            } finally {
+                this.loading = false;
             }
         }
     },

@@ -31,7 +31,14 @@ export const deleteUser = async (id) => {
 // For Users
 
 export const getUserProfile = async () => {
-    const response = await axiosInstance.get("users/profile");
+    const role = localStorage.getItem("role");
+    const endpoint = (role === "admin" || role === "guru") ? "admin/users/profile" : "users/profile";
+    const response = await axiosInstance.get(endpoint);
+    return response.data;
+}
+
+export const getAdminProfileAPI = async () => {
+    const response = await axiosInstance.get("admin/users/profile");
     return response.data;
 }
 

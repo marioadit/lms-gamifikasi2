@@ -1,14 +1,14 @@
 <script setup>
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { ref, onMounted, computed } from "vue";
 import { useLessonsStore } from "../../../store/lessonsStore";
 import { useQuizStore } from "../../../store/quizStore";
 import Swal from "sweetalert2";
 
+const route = useRoute();
 const router = useRouter();
 
 const quizStore = useQuizStore();
-
 const lessonsStore = useLessonsStore();
 
 const loadLessons = async () => {
@@ -17,10 +17,6 @@ const loadLessons = async () => {
 
 const lessons = computed(() => lessonsStore.lessons);
 
-onMounted(async () => {
-  await loadLessons();
-});
-
 const quizFormData = ref({
   lesson_id: "",
   title: "",
@@ -28,6 +24,14 @@ const quizFormData = ref({
   start_time: "",
   end_time: "",
   is_active: 1,
+});
+
+onMounted(async () => {
+  await loadLessons();
+  const queryLessonId = route.query.lesson_id || route.params.id;
+  if (queryLessonId) {
+    quizFormData.value.lesson_id = parseInt(queryLessonId);
+  }
 });
 
 const isLoading = ref(false);

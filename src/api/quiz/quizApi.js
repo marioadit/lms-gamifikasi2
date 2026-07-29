@@ -47,3 +47,28 @@ export const getQuizResultsByIdAPI = async (quizId) => {
 
     return response.data;
 }
+
+export const getAdminAnswerHistoryAPI = async () => {
+    const response = await axiosInstance.get("admin/answer-history");
+    return response.data;
+}
+
+export const getAdminAnswerHistoryDetailAPI = async (studentId, quizId) => {
+    const response = await axiosInstance.get(`admin/answer-history/detail/${studentId}/${quizId}`);
+    return response.data;
+}
+
+export const getStudentAnswersAdminAPI = async (studentId) => {
+    const response = await axiosInstance.get(`admin/users/all-student-answers/${studentId}`);
+    return response.data;
+}
+
+export const getOptionByIdAPI = async (optionId) => {
+    const response = await axiosInstance.get(`admin/options/${optionId}`);
+    return response.data;
+}
+
+export const getAnswerHistoryByStudentAPI = async (studentId) => {
+    const response = await axiosInstance.get(`admin/answer-history/student/${studentId}`);
+    return response.data;
+}
