@@ -50,11 +50,18 @@ watch(
   { immediate: true }
 );
 
+const getLessonTitle = (quiz) => {
+  if (quiz.lesson?.title) return quiz.lesson.title;
+  if (quiz.lesson_title) return quiz.lesson_title;
+  const found = lessonsList.value.find((l) => Number(l.id) === Number(quiz.lesson_id));
+  return found ? found.title : null;
+};
+
 const filteredQuizzes = computed(() => {
   return (quizStore.quizzes || []).filter((quiz) => {
     const qTitle = (quiz.title || "").toLowerCase();
     const qDesc = (quiz.description || "").toLowerCase();
-    const qLessonTitle = (quiz.lesson?.title || "").toLowerCase();
+    const qLessonTitle = (getLessonTitle(quiz) || "").toLowerCase();
     const query = searchQuery.value.toLowerCase().trim();
 
     const matchesSearch = !query || qTitle.includes(query) || qDesc.includes(query) || qLessonTitle.includes(query);
@@ -181,9 +188,7 @@ const deleteQuiz = async (id) => {
           <tr v-for="quiz in filteredQuizzes" :key="quiz.id" class="hover:bg-gray-50">
             <td class="font-bold text-gray-900">{{ quiz.title }}</td>
             <td>
-              <span class="badge badge-primary badge-sm font-semibold">
-                {{ quiz.lesson?.title || 'Umum' }}
-              </span>
+              {{ getLessonTitle(quiz) || '-' }}
             </td>
             <td class="max-w-xs truncate" :title="quiz.description">
               {{ quiz.description && quiz.description.length > 35 ? quiz.description.substring(0, 35) + '...' : quiz.description || '-' }}
