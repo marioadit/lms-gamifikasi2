@@ -38,14 +38,33 @@ const lessons = computed(() => {
   return all;
 });
 
+const selectedLesson = computed(() => {
+  if (!quizFormData.value.lesson_id) return null;
+  return (lessonsStore.lessons || []).find(l => Number(l.id) === Number(quizFormData.value.lesson_id));
+});
+
+const canToggleActive = computed(() => {
+  if (userRole.value !== 'guru') return false;
+  if (!selectedLesson.value) return false;
+  const classId = selectedLesson.value.class_id || selectedLesson.value.class?.id;
+  if (!classId || !myClassIds.value) return false;
+  return myClassIds.value.includes(classId);
+});
+
 const quizFormData = ref({
   lesson_id: "",
   title: "",
   description: "",
   start_time: "",
   end_time: "",
-  is_active: 1,
+  is_active: 0,
 });
+
+watch(canToggleActive, (canToggle) => {
+  if (!canToggle) {
+    quizFormData.value.is_active = 0;
+  }
+}, { immediate: true });
 
 onMounted(async () => {
   await classesStore.getClasses().catch(() => null);
@@ -53,6 +72,9 @@ onMounted(async () => {
   const queryLessonId = route.query.lesson_id || route.params.id;
   if (queryLessonId) {
     quizFormData.value.lesson_id = parseInt(queryLessonId);
+  }
+  if (canToggleActive.value) {
+    quizFormData.value.is_active = 1;
   }
 });
 
@@ -229,14 +251,24 @@ const cancelAdd = () => {
 
           <div class="form-control mb-6">
             <label class="label">
-              <span class="label-text font-medium">Aktif</span> &nbsp;
+              <span class="label-text font-medium">Aktifkan Kuis</span>
             </label>
-            <input
-              v-model="quizFormData.is_active"
-              :checked="true"
-              type="checkbox"
-              class="toggle toggle-primary"
-            />
+            <div class="flex items-center gap-3">
+              <input
+                v-model="quizFormData.is_active"
+                :disabled="!canToggleActive"
+                :true-value="1"
+                :false-value="0"
+                type="checkbox"
+                class="toggle toggle-primary"
+              />
+              <span class="text-sm font-semibold" :class="quizFormData.is_active ? 'text-green-600' : 'text-gray-400'">
+                {{ quizFormData.is_active ? 'Aktif' : 'Tidak Aktif' }}
+              </span>
+            </div>
+            <p v-if="!canToggleActive" class="text-xs text-amber-600 font-medium mt-2">
+              ℹ️ Status aktif kuis hanya dapat diubah oleh Guru dari kelas yang bersangkutan.
+            </p>
           </div>
 
           <div class="flex justify-end gap-4">

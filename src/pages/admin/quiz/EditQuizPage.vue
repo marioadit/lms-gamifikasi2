@@ -6,22 +6,50 @@ import { computed, onMounted, ref, watch } from "vue";
 import Swal from "sweetalert2";
 import { formatDateForInput } from "../../../helper/helper";
 
+import { useClassesStore } from "../../../store/classesStore";
+import { useAuthStore } from "../../../store/authStore";
+
 const route = useRoute();
 const router = useRouter();
 const quizStore = useQuizStore();
-
 const lessonsStore = useLessonsStore();
+const classesStore = useClassesStore();
+const authStore = useAuthStore();
+
+const userRole = computed(() => authStore.userRole);
+const currentUserId = computed(() => authStore.currentUserId);
 
 const selectedQuiz = computed(() => quizStore.quiz);
 
 const isLoading = computed(() => quizStore.loading);
 const errorMessage = computed(() => quizStore.error);
-
 const successMessage = computed(() => quizStore.success);
 
 const quizId = route.params.id;
 
 const lessons = computed(() => lessonsStore.lessons);
+
+const myClassIds = computed(() => {
+  if (userRole.value !== 'guru') return null;
+  return classesStore.classes
+    .filter(cls => Number(cls.teacher_id || cls.teacher?.id || 0) === currentUserId.value)
+    .map(cls => cls.id);
+});
+
+const selectedLesson = computed(() => {
+  if (!quizFormData.value.lesson_id) return null;
+  return (lessonsStore.lessons || []).find(l => Number(l.id) === Number(quizFormData.value.lesson_id));
+});
+
+const canToggleActive = computed(() => {
+  if (userRole.value !== 'guru') return false;
+  const lessonObj = selectedLesson.value || selectedQuiz.value?.lesson;
+  if (!lessonObj) return false;
+  const classId = lessonObj.class_id || lessonObj.class?.id;
+  if (!classId || !myClassIds.value) return false;
+  return myClassIds.value.includes(classId);
+});
+
 // Data
 const quizFormData = ref({
   lesson_id: "",
@@ -38,6 +66,7 @@ onMounted(async () => {
     router.push("/admin/kuis");
     return;
   }
+  await classesStore.getClasses().catch(() => null);
   await lessonsStore.getLessons();
   await quizStore.getQuizById(quizId);
   isLoading.value = false;
@@ -239,14 +268,24 @@ const cancelEdit = () => {
 
           <div class="form-control mb-6">
             <label class="label">
-              <span class="label-text font-medium">Aktif</span> &nbsp;
+              <span class="label-text font-medium">Aktifkan Kuis</span>
             </label>
-            <input
-              v-model="quizFormData.is_active"
-              :checked="true"
-              type="checkbox"
-              class="toggle toggle-primary"
-            />
+            <div class="flex items-center gap-3">
+              <input
+                v-model="quizFormData.is_active"
+                :disabled="!canToggleActive"
+                :true-value="1"
+                :false-value="0"
+                type="checkbox"
+                class="toggle toggle-primary"
+              />
+              <span class="text-sm font-semibold" :class="quizFormData.is_active ? 'text-green-600' : 'text-gray-400'">
+                {{ quizFormData.is_active ? 'Aktif' : 'Tidak Aktif' }}
+              </span>
+            </div>
+            <p v-if="!canToggleActive" class="text-xs text-amber-600 font-medium mt-2">
+              ℹ️ Status aktif kuis hanya dapat diubah oleh Guru dari kelas yang bersangkutan.
+            </p>
           </div>
 
           <div class="flex justify-end gap-4">
