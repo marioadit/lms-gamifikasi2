@@ -372,14 +372,23 @@ const submitQuiz = async () => {
         switch (question.type) {
           case "choice":
           case "choice_image":
+          case "multiple_choice":
             questionData.answer_option_id = answer;
             break;
           case "essay":
-            questionData.answer_text = answer;
+          case "guess_image":
+            questionData.answer_text = typeof answer === "string" ? answer : String(answer || "");
             break;
           case "match_image":
             // For match_image, we store the matches as answer_text in JSON format
-            questionData.answer_text = JSON.stringify(answer);
+            questionData.answer_text = typeof answer === "string" ? answer : JSON.stringify(answer);
+            break;
+          default:
+            if (typeof answer === "number") {
+              questionData.answer_option_id = answer;
+            } else {
+              questionData.answer_text = typeof answer === "string" ? answer : JSON.stringify(answer);
+            }
             break;
         }
 
@@ -753,16 +762,85 @@ onBeforeUnmount(() => {
                 </div>
               </div>
 
-              <!-- Essay Type (Original) -->
+              <!-- Guess Image Type (Tebak Gambar) -->
+              <div
+                v-else-if="currentQuestion.type === 'guess_image'"
+                class="space-y-4"
+              >
+                <!-- Option choices if available for guess_image -->
+                <div v-if="currentQuestion.options && currentQuestion.options.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div
+                    v-for="choice in currentQuestion.options"
+                    :key="choice.id"
+                    class="flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all"
+                    :class="[
+                      answers[currentQuestion.id] === choice.option_text || answers[currentQuestion.id] === choice.id
+                        ? 'border-blue-400 bg-blue-50'
+                        : 'border-gray-200 hover:border-blue-200',
+                    ]"
+                    @click="handleAnswer(choice.option_text || choice.id)"
+                  >
+                    <div
+                      class="w-6 h-6 rounded-full border-2 flex items-center justify-center mr-4 shrink-0"
+                      :class="[
+                        answers[currentQuestion.id] === choice.option_text || answers[currentQuestion.id] === choice.id
+                          ? 'border-blue-400 bg-blue-400'
+                          : 'border-gray-300',
+                      ]"
+                    >
+                      <span
+                        v-if="answers[currentQuestion.id] === choice.option_text || answers[currentQuestion.id] === choice.id"
+                        class="text-white"
+                        >✓</span
+                      >
+                    </div>
+                    <span class="text-gray-700 font-medium">{{ choice.option_text }}</span>
+                  </div>
+                </div>
+
+                <!-- Text input field for typing guess -->
+                <div class="form-control">
+                  <label class="label">
+                    <span class="label-text font-bold text-gray-700">Tebakan Gambar Kamu:</span>
+                  </label>
+                  <input
+                    v-model="answers[currentQuestion.id]"
+                    @input="handleAnswer(answers[currentQuestion.id])"
+                    type="text"
+                    class="w-full p-4 border-2 border-blue-200 rounded-xl text-lg focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition-all"
+                    placeholder="Ketik tebakan gambarmu di sini... 🎯"
+                  />
+                </div>
+              </div>
+
+              <!-- Essay Type -->
               <div
                 v-else-if="currentQuestion.type === 'essay'"
                 class="space-y-4"
               >
+                <label class="label">
+                  <span class="label-text font-bold text-gray-700">Jawaban Essay Kamu:</span>
+                </label>
                 <textarea
                   v-model="answers[currentQuestion.id]"
+                  @input="handleAnswer(answers[currentQuestion.id])"
+                  class="w-full p-4 border-2 border-blue-200 rounded-xl text-base focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition-all"
+                  rows="5"
+                  placeholder="Tuliskan jawaban essay kamu secara lengkap di sini... 📝"
+                ></textarea>
+              </div>
+
+              <!-- General Fallback Input Type -->
+              <div v-else class="space-y-4">
+                <label class="label">
+                  <span class="label-text font-bold text-gray-700">Jawaban Kamu:</span>
+                </label>
+                <textarea
+                  v-model="answers[currentQuestion.id]"
+                  @input="handleAnswer(answers[currentQuestion.id])"
                   class="w-full p-4 border-2 border-blue-200 rounded-xl focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition-all"
                   rows="4"
-                  placeholder="Tulis jawabanmu di sini, teman! 📝"
+                  placeholder="Tulis jawabanmu di sini... 📝"
                 ></textarea>
               </div>
             </div>

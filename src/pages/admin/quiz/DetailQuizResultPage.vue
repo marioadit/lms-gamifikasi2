@@ -153,6 +153,8 @@ const getQuestionTypeLabel = (type) => {
   switch (type) {
     case "essay":
       return "Esai";
+    case "guess_image":
+      return "Tebak Gambar";
     case "multiple_choice":
       return "Pilihan Ganda";
     case "choice_image":

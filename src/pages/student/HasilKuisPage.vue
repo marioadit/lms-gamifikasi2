@@ -219,6 +219,7 @@ const getEmoji = (isCorrect) => {
 const getAnswerEmoji = (type) => {
   switch(type) {
     case 'essay': return '📝';
+    case 'guess_image': return '🎯';
     case 'choice_image': return '🖼️';
     case 'match_image': return '🔄';
     default: return '📋';
@@ -373,9 +374,9 @@ const goBackToResults = () => {
             </div>
             
             <template v-if="getStudentAnswerForQuestion(question)">
-              <!-- 1. Essay Answer -->
+              <!-- 1. Text Answer (Essay / Tebak Gambar / General Text) -->
               <div 
-                v-if="(question.type || question.question_type) === 'essay'" 
+                v-if="['essay', 'guess_image'].includes(question.type || question.question_type) || (getStudentAnswerForQuestion(question).answer_text && !getSelectedOptionObj(question) && (question.type || question.question_type) !== 'match_image')" 
                 class="bg-white rounded-2xl p-4 text-gray-800 font-medium border border-gray-100 leading-relaxed"
               >
                 {{ getStudentAnswerForQuestion(question).answer_text || '-' }}
