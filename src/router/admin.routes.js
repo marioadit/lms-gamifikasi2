@@ -77,6 +77,7 @@ export default [
                 path: "kelas/tambah",
                 name: "adminAddClass",
                 component: AddClassPage,
+                beforeEnter: guardAdminOnly,
                 meta: { title: "Tambah Kelas", requiresAuth: true }
             },
             {
@@ -89,6 +90,7 @@ export default [
                 path: "kelas/edit/:id",
                 name: "adminEditClass",
                 component: EditClassPage,
+                beforeEnter: guardAdminOnly,
                 meta: { title: "Edit Kelas", requiresAuth: true }
             },
             {

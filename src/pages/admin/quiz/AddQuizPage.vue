@@ -5,17 +5,38 @@ import { useLessonsStore } from "../../../store/lessonsStore";
 import { useQuizStore } from "../../../store/quizStore";
 import Swal from "sweetalert2";
 
+import { useClassesStore } from "../../../store/classesStore";
+import { useAuthStore } from "../../../store/authStore";
+
 const route = useRoute();
 const router = useRouter();
 
 const quizStore = useQuizStore();
 const lessonsStore = useLessonsStore();
+const classesStore = useClassesStore();
+const authStore = useAuthStore();
+
+const userRole = computed(() => authStore.userRole);
+const currentUserId = computed(() => authStore.currentUserId);
 
 const loadLessons = async () => {
   await lessonsStore.getLessons();
 };
 
-const lessons = computed(() => lessonsStore.lessons);
+const myClassIds = computed(() => {
+  if (userRole.value !== 'guru') return null;
+  return classesStore.classes
+    .filter(cls => Number(cls.teacher_id || cls.teacher?.id || 0) === currentUserId.value)
+    .map(cls => cls.id);
+});
+
+const lessons = computed(() => {
+  const all = lessonsStore.lessons || [];
+  if (userRole.value === 'guru' && myClassIds.value) {
+    return all.filter(l => myClassIds.value.includes(l.class_id));
+  }
+  return all;
+});
 
 const quizFormData = ref({
   lesson_id: "",
@@ -27,6 +48,7 @@ const quizFormData = ref({
 });
 
 onMounted(async () => {
+  await classesStore.getClasses().catch(() => null);
   await loadLessons();
   const queryLessonId = route.query.lesson_id || route.params.id;
   if (queryLessonId) {

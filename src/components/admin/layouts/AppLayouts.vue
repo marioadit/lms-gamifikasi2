@@ -1,10 +1,30 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import AppSidebar from "./AppSidebar.vue";
 import AppFooter from "./AppFooter.vue";
 import AppNavbar from "./AppNavbar.vue";
+import { useAuthStore } from "../../../store/authStore";
+import { getAdminProfileAPI } from "../../../api/userApi";
 
 const sidebarOpen = ref(false);
+const authStore = useAuthStore();
+
+onMounted(async () => {
+  if (!authStore.currentUserId) {
+    try {
+      const res = await getAdminProfileAPI();
+      const user = res?.data || res;
+      if (user && user.id) {
+        authStore.user = user;
+        authStore.userId = user.id;
+        localStorage.setItem("user_id", user.id);
+        localStorage.setItem("user", JSON.stringify(user));
+      }
+    } catch (e) {
+      console.error("Error fetching user profile:", e);
+    }
+  }
+});
 </script>
 
 <template>

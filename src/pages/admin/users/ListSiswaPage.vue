@@ -4,19 +4,49 @@ import { resetUserPassword, deleteUser } from "../../../api/userApi";
 import { useRoute } from "vue-router";
 import { computed, onMounted, watch, ref } from "vue";
 
+import { useClassesStore } from "../../../store/classesStore";
+import { useAuthStore } from "../../../store/authStore";
+
 const route = useRoute();
 const studentStore = useStudentStore();
+const classesStore = useClassesStore();
+const authStore = useAuthStore();
 
-const students = computed(() => studentStore.students);
-const isLoading = computed(() => studentStore.loading);
-const errorMessage = computed(() => studentStore.error);
-const successMessage = computed(() => studentStore.success);
+const userRole = computed(() => authStore.userRole);
+const currentUserId = computed(() => authStore.currentUserId);
 
-const loadClasses = () => {
-  studentStore.getUserStudent();
+const myClassIds = computed(() => {
+  if (userRole.value !== 'guru') return null;
+  return classesStore.classes
+    .filter(cls => Number(cls.teacher_id || cls.teacher?.id || 0) === currentUserId.value)
+    .map(cls => cls.id);
+});
+
+const loadClasses = async () => {
+  await classesStore.getClasses().catch(() => null);
+  await studentStore.getUserStudent();
 };
 
 onMounted(loadClasses);
+
+const students = computed(() => {
+  return studentStore.students || [];
+});
+
+const canManageStudent = (student) => {
+  if (userRole.value === 'admin') return true;
+  if (userRole.value === 'guru') {
+    if (!student || !Array.isArray(student.classes_enrolled)) return false;
+    return student.classes_enrolled.some(c => 
+      (myClassIds.value && myClassIds.value.includes(c.id)) || 
+      Number(c.teacher_id || c.teacher?.id) === currentUserId.value
+    );
+  }
+  return false;
+};
+const isLoading = computed(() => studentStore.loading);
+const errorMessage = computed(() => studentStore.error);
+const successMessage = computed(() => studentStore.success);
 
 watch(
   () => route.fullPath,
@@ -145,18 +175,20 @@ const handleDeleteStudent = async () => {
                 <router-link :to="`/admin/users/${student.id}`" class="btn btn-xs btn-info text-white">
                   Lihat
                 </router-link>
-                <router-link :to="`/admin/users/${student.id}/edit-profile`" class="btn btn-xs btn-outline btn-neutral">
-                  Ubah profil
-                </router-link>
-                <router-link :to="`/admin/users/${student.id}/edit-password`" class="btn btn-xs btn-outline btn-secondary">
-                  Ubah password
-                </router-link>
-                <button @click="openResetModal(student)" class="btn btn-xs btn-warning text-white">
-                  Reset password
-                </button>
-                <button @click="openDeleteModal(student)" class="btn btn-xs btn-error text-white">
-                  Hapus
-                </button>
+                <template v-if="canManageStudent(student)">
+                  <router-link :to="`/admin/users/${student.id}/edit-profile`" class="btn btn-xs btn-outline btn-neutral">
+                    Ubah profil
+                  </router-link>
+                  <router-link :to="`/admin/users/${student.id}/edit-password`" class="btn btn-xs btn-outline btn-secondary">
+                    Ubah password
+                  </router-link>
+                  <button @click="openResetModal(student)" class="btn btn-xs btn-warning text-white">
+                    Reset password
+                  </button>
+                  <button @click="openDeleteModal(student)" class="btn btn-xs btn-error text-white">
+                    Hapus
+                  </button>
+                </template>
               </div>
             </td>
           </tr>

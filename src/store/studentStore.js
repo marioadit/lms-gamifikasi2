@@ -81,10 +81,20 @@ export const useStudentStore = defineStore("student", {
                             student.disabled = false;
                             student.enrolledClassName = null;
                         } else if (student.classes_enrolled && student.classes_enrolled.length > 0) {
-                            // Student is enrolled in another class - disable checkbox
-                            student.selected = false;
-                            student.disabled = true;
-                            student.enrolledClassName = student.classes_enrolled.map(c => c.name).join(', ');
+                            // Filter classes to check if enrolled in ANOTHER class
+                            const otherClasses = student.classes_enrolled.filter(
+                                c => Number(c.id) !== Number(classId)
+                            );
+                            if (otherClasses.length > 0) {
+                                // Student is enrolled in another class - disable selection and record class name
+                                student.selected = false;
+                                student.disabled = true;
+                                student.enrolledClassName = otherClasses.map(c => c.name).join(', ');
+                            } else {
+                                student.selected = false;
+                                student.disabled = false;
+                                student.enrolledClassName = null;
+                            }
                         } else {
                             student.selected = false;
                             student.disabled = false;

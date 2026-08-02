@@ -3,10 +3,11 @@ import { login, register, logout } from "../api/authApi";
 
 export const useAuthStore = defineStore("auth", {
     state: () => ({
-        user: null,
+        user: JSON.parse(localStorage.getItem("user") || "null"),
         token: localStorage.getItem("token") || "",
         role: localStorage.getItem("role") || "",
         name: localStorage.getItem("name") || "",
+        userId: localStorage.getItem("user_id") || "",
         loading: false,
         error: null
     }),
@@ -15,6 +16,7 @@ export const useAuthStore = defineStore("auth", {
         isAuthenticated: (state) => !!state.token,
         userRole: (state) => state.role,
         userName: (state) => state.name,
+        currentUserId: (state) => Number(state.userId || state.user?.id || localStorage.getItem("user_id") || 0),
         isLoading: (state) => state.loading,
         getError: (state) => state.error
     },
@@ -37,6 +39,7 @@ export const useAuthStore = defineStore("auth", {
             this.token = "";
             this.role = "";
             this.name = "";
+            this.userId = "";
             this.error = null;
         },
 
@@ -44,6 +47,8 @@ export const useAuthStore = defineStore("auth", {
             localStorage.removeItem('token');
             localStorage.removeItem('role');
             localStorage.removeItem('name');
+            localStorage.removeItem('user_id');
+            localStorage.removeItem('user');
             localStorage.removeItem('expires_at');
             localStorage.removeItem('token_type');
         },
@@ -61,11 +66,14 @@ export const useAuthStore = defineStore("auth", {
                 this.token = userData.token;
                 this.role = userData.user.role;
                 this.name = userData.user.name;
+                this.userId = userData.user.id;
 
                 // Update localStorage
                 localStorage.setItem("token", userData.token);
                 localStorage.setItem("role", userData.user.role);
                 localStorage.setItem("name", userData.user.name);
+                localStorage.setItem("user_id", userData.user.id);
+                localStorage.setItem("user", JSON.stringify(userData.user));
                 localStorage.setItem("token_type", userData.token_type);
                 localStorage.setItem("expires_at", userData.expires_at);
 

@@ -5,9 +5,15 @@ import { useUserStore } from "../../../store/userStore";
 import { useStudentStore } from "../../../store/studentStore";
 import { getClassesById } from "../../../api/classesApi";
 
+import { useAuthStore } from "../../../store/authStore";
+
 const usersStore = useUserStore();
 const studentsStore = useStudentStore();
+const authStore = useAuthStore();
 const route = useRoute();
+
+const userRole = computed(() => authStore.userRole);
+const currentUserId = computed(() => authStore.currentUserId);
 
 const classDetail = ref(null);
 const isClassLoading = ref(false);
@@ -22,6 +28,16 @@ onMounted(loadDetail);
 const detailUser = computed(() => usersStore.detailUser);
 const isLoading = computed(() => usersStore.loading);
 const errorMessage = computed(() => usersStore.error);
+
+const canManage = computed(() => {
+  if (userRole.value === 'admin') return true;
+  if (userRole.value === 'guru' && detailUser.value) {
+    const enrolled = detailUser.value.classes_enrolled;
+    if (!Array.isArray(enrolled)) return false;
+    return enrolled.some(c => Number(c.teacher_id || c.teacher?.id || 0) === currentUserId.value);
+  }
+  return false;
+});
 
 // Watch for detailUser to fetch Class Info and Classmates
 watch(
@@ -148,7 +164,7 @@ watch(
         </div>
 
         <!-- Quick Action Buttons -->
-        <div class="flex gap-2 mt-8 pt-4 border-t border-gray-100">
+        <div v-if="canManage" class="flex gap-2 mt-8 pt-4 border-t border-gray-100">
           <router-link :to="`/admin/users/${detailUser.id}/edit-profile`" class="btn btn-sm btn-outline btn-neutral flex-1">
             ✏️ Ubah Profil
           </router-link>
@@ -167,7 +183,7 @@ watch(
             <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
               <span>🏫</span> Info Kelas & Wali Kelas
             </h2>
-            <template v-if="detailUser.classes_enrolled && detailUser.classes_enrolled.length > 0">
+            <template v-if="canManage && detailUser.classes_enrolled && detailUser.classes_enrolled.length > 0">
               <router-link :to="`/admin/kelas/${detailUser.classes_enrolled[0].id}/siswa`" class="btn btn-xs btn-primary text-white">
                 Kelola Kelas
               </router-link>

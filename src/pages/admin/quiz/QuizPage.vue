@@ -6,20 +6,36 @@ import { useLessonsStore } from "../../../store/lessonsStore";
 import Swal from "sweetalert2";
 import { Vue3Lottie } from 'vue3-lottie';
 
+import { useClassesStore } from "../../../store/classesStore";
+import { useAuthStore } from "../../../store/authStore";
+
 const route = useRoute();
 const quizStore = useQuizStore();
 const lessonsStore = useLessonsStore();
+const classesStore = useClassesStore();
+const authStore = useAuthStore();
+
+const userRole = computed(() => authStore.userRole);
+const currentUserId = computed(() => authStore.currentUserId);
 
 const isLoading = ref(false);
 const errorMessage = ref(null);
 const searchQuery = ref("");
 const selectedLessonId = ref("");
 
+const myClassIds = computed(() => {
+  if (userRole.value !== 'guru') return null;
+  return classesStore.classes
+    .filter(cls => Number(cls.teacher_id || cls.teacher?.id || 0) === currentUserId.value)
+    .map(cls => cls.id);
+});
+
 const loadQuizzes = async () => {
   isLoading.value = true;
   errorMessage.value = null;
   try {
     await Promise.all([
+      classesStore.getClasses().catch(() => null),
       quizStore.getQuizzes(),
       lessonsStore.getLessons().catch(() => null)
     ]);
@@ -30,7 +46,13 @@ const loadQuizzes = async () => {
   }
 };
 
-const lessonsList = computed(() => lessonsStore.lessons || []);
+const lessonsList = computed(() => {
+  const allLessons = lessonsStore.lessons || [];
+  if (userRole.value === 'guru' && myClassIds.value) {
+    return allLessons.filter(l => myClassIds.value.includes(l.class_id));
+  }
+  return allLessons;
+});
 
 onMounted(async () => {
   await loadQuizzes();
@@ -53,12 +75,20 @@ watch(
 const getLessonTitle = (quiz) => {
   if (quiz.lesson?.title) return quiz.lesson.title;
   if (quiz.lesson_title) return quiz.lesson_title;
-  const found = lessonsList.value.find((l) => Number(l.id) === Number(quiz.lesson_id));
+  const found = (lessonsStore.lessons || []).find((l) => Number(l.id) === Number(quiz.lesson_id));
   return found ? found.title : null;
 };
 
 const filteredQuizzes = computed(() => {
   return (quizStore.quizzes || []).filter((quiz) => {
+    if (userRole.value === 'guru' && myClassIds.value) {
+      const quizLesson = (lessonsStore.lessons || []).find(l => Number(l.id) === Number(quiz.lesson_id));
+      const classId = quiz.class_id || quiz.lesson?.class_id || quizLesson?.class_id;
+      if (!classId || !myClassIds.value.includes(classId)) {
+        return false;
+      }
+    }
+
     const qTitle = (quiz.title || "").toLowerCase();
     const qDesc = (quiz.description || "").toLowerCase();
     const qLessonTitle = (getLessonTitle(quiz) || "").toLowerCase();

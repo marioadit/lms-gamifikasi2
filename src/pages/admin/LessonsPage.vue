@@ -6,9 +6,29 @@ import { useClassesStore } from "../../store/classesStore";
 import { getCurrentInstance } from 'vue';
 import Swal from "sweetalert2";
 
+import { useAuthStore } from "../../store/authStore";
+
 const route = useRoute();
 const lessonsStore = useLessonsStore();
 const classesStore = useClassesStore();
+const authStore = useAuthStore();
+
+const userRole = computed(() => authStore.userRole);
+const currentUserId = computed(() => authStore.currentUserId);
+
+const myClassIds = computed(() => {
+  if (userRole.value !== 'guru') return null;
+  return classesStore.classes
+    .filter(cls => Number(cls.teacher_id || cls.teacher?.id || 0) === currentUserId.value)
+    .map(cls => cls.id);
+});
+
+const classes = computed(() => {
+  if (userRole.value === 'guru' && myClassIds.value) {
+    return classesStore.classes.filter(cls => myClassIds.value.includes(cls.id));
+  }
+  return classesStore.classes;
+});
 
 const { proxy } = getCurrentInstance();
 const base_url = proxy.$base_url;
@@ -37,12 +57,16 @@ watch(
   { immediate: true }
 );
 
-const classes = computed(() => classesStore.classes);
 const isLoading = computed(() => lessonsStore.loading);
 const errorMessage = computed(() => lessonsStore.error);
 
 const filteredLessons = computed(() => {
   return lessonsStore.lessons.filter((lesson) => {
+    if (userRole.value === 'guru' && myClassIds.value) {
+      if (!myClassIds.value.includes(lesson.class_id)) {
+        return false;
+      }
+    }
     if (!filterClassId.value) return true;
     return lesson.class_id === filterClassId.value;
   });

@@ -3,11 +3,16 @@ import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useLessonsStore } from "../../store/lessonsStore";
 import { useClassesStore } from "../../store/classesStore";
+import { useAuthStore } from "../../store/authStore";
 import Swal from "sweetalert2";
 
 const router = useRouter();
 const lessonsStore = useLessonsStore();
 const classesStore = useClassesStore();
+const authStore = useAuthStore();
+
+const userRole = computed(() => authStore.userRole);
+const currentUserId = computed(() => authStore.currentUserId);
 
 const isLoading = ref(false);
 const errorMessage = ref("");
@@ -30,7 +35,12 @@ onMounted(async () => {
   await classesStore.getClasses();
 });
 
-const classes = computed(() => classesStore.classes);
+const classes = computed(() => {
+  if (userRole.value === 'guru') {
+    return classesStore.classes.filter(cls => Number(cls.teacher_id || cls.teacher?.id || 0) === currentUserId.value);
+  }
+  return classesStore.classes;
+});
 
 // Handle file upload
 const handleFileUpload = async (event) => {

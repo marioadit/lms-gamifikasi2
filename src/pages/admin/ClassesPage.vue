@@ -1,13 +1,24 @@
-getLessons<script setup>
+<script setup>
 import { ref, onMounted, computed, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useClassesStore } from "../../store/classesStore";
 import { useLessonsStore } from "../../store/lessonsStore";
+import { useAuthStore } from "../../store/authStore";
 import Swal from "sweetalert2";
 
 const route = useRoute();
 const classesStore = useClassesStore();
 const lessonsStore = useLessonsStore();
+const authStore = useAuthStore();
+
+const userRole = computed(() => authStore.userRole);
+const currentUserId = computed(() => authStore.currentUserId);
+
+const isTaughtByMe = (cls) => {
+  if (userRole.value !== 'guru') return true;
+  const teacherId = Number(cls.teacher_id || cls.teacher?.id || 0);
+  return teacherId === currentUserId.value;
+};
 
 // Load classes when component mounts
 onMounted(async () => {
@@ -136,9 +147,9 @@ const saveStudents = () => {
     <div class="flex justify-between items-center mb-6">
       <div>
         <h1 class="text-2xl font-bold">Kelola Kelas 🏫</h1>
-        <p class="text-gray-500">Buat dan kelola kelas untuk siswa</p>
+        <p class="text-gray-500">Daftar dan kelola kelas untuk siswa</p>
       </div>
-      <router-link to="/admin/kelas/tambah" class="btn btn-primary">
+      <router-link v-if="userRole === 'admin'" to="/admin/kelas/tambah" class="btn btn-primary">
         <span class="mr-1">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -207,18 +218,20 @@ const saveStudents = () => {
                 Siswa
               </router-link>
               <router-link
+                v-if="userRole === 'admin' || isTaughtByMe(cls)"
                 :to="`/admin/kelas/${cls.id}/pelajaran`"
                 class="btn btn-sm btn-success"
               >
                 Pelajaran
               </router-link>
               <router-link
+                v-if="userRole === 'admin'"
                 :to="`/admin/kelas/edit/${cls.id}`"
                 class="btn btn-sm btn-warning"
               >
                 Edit
               </router-link>
-              <button @click="deleteClass(cls.id)" class="btn btn-sm btn-error">
+              <button v-if="userRole === 'admin'" @click="deleteClass(cls.id)" class="btn btn-sm btn-error">
                 Hapus
               </button>
             </td>
