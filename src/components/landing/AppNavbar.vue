@@ -25,12 +25,12 @@ const navigateToRegister = () => {
 const navigateToDashboard = () => {
   if (userRole.value === 'siswa') {
     router.push('/dashboard');
-  } else if (userRole.value === 'admin') {
+  } else if (userRole.value === 'admin' || userRole.value === 'guru') {
     router.push('/admin');
   } else {
     Swal.fire({
       title: 'Akses tidak diizinkan',
-      text: 'Hanya siswa dan admin yang dapat mengakses dashboard.',
+      text: 'Hanya siswa, guru, dan admin yang dapat mengakses dashboard.',
       icon: 'error'
     });
   }

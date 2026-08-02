@@ -35,6 +35,14 @@ import DetailUserQuiz from "../pages/admin/quiz/DetailUserQuiz.vue";
 import DetailQuizResultPage from "../pages/admin/quiz/DetailQuizResultPage.vue";
 import AdminProfilePage from "../pages/admin/profile/AdminProfilePage.vue";
 
+const guardAdminOnly = (to, from, next) => {
+    const role = localStorage.getItem("role");
+    if (role === "guru") {
+        return next({ path: "/admin/users/siswa" });
+    }
+    next();
+};
+
 export default [
     {
         path: "/admin",
@@ -216,30 +224,35 @@ export default [
                 path: "users/guru",
                 name: "adminListGuru",
                 component: ListGuruPage,
+                beforeEnter: guardAdminOnly,
                 meta: { title: "Daftar Guru", requiresAuth: true }
             },
             {
                 path: "users/guru/tambah",
                 name: "adminAddGuru",
                 component: AddGuruPage,
+                beforeEnter: guardAdminOnly,
                 meta: { title: "Tambah Guru", requiresAuth: true }
             },
             {
                 path: "users/guru/:id",
                 name: "adminDetailGuru",
                 component: DetailGuruPage,
+                beforeEnter: guardAdminOnly,
                 meta: { title: "Detail Guru", requiresAuth: true }
             },
             {
                 path: "users/guru/:id/edit-profile",
                 name: "adminEditGuruProfile",
                 component: EditGuruProfilePage,
+                beforeEnter: guardAdminOnly,
                 meta: { title: "Edit Profil Guru", requiresAuth: true }
             },
             {
                 path: "users/guru/:id/edit-password",
                 name: "adminEditGuruPassword",
                 component: EditGuruPasswordPage,
+                beforeEnter: guardAdminOnly,
                 meta: { title: "Edit Password Guru", requiresAuth: true }
             },
             {

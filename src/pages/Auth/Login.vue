@@ -61,7 +61,7 @@ const login = async () => {
     });
     
     // Navigate based on role
-    if (userData.user.role === 'admin') {
+    if (userData.user.role === 'admin' || userData.user.role === 'guru') {
       await router.push('/admin');
     } else {
       await router.push('/dashboard');

@@ -22,6 +22,8 @@ const route = useRoute();
 const isUserMenuOpen = ref(false);
 const isQuizMenuOpen = ref(false);
 
+const userRole = computed(() => localStorage.getItem("role") || "");
+
 const toggleUserMenu = () => {
   isUserMenuOpen.value = !isUserMenuOpen.value;
 };
@@ -163,7 +165,7 @@ const logout = () => {
               <span>Kelola Siswa</span>
             </router-link>
           </li>
-          <li>
+          <li v-if="userRole === 'admin'">
             <router-link
               to="/admin/users/guru"
               class="flex items-center gap-2 p-2 rounded-md hover:bg-base-300"

@@ -32,7 +32,7 @@ router.beforeEach((to, from, next) => {
     
     if (to.meta.guest && isAuthenticated && !to.meta.publicPage) {
         const role = localStorage.getItem("role");
-        if (role === "admin") {
+        if (role === "admin" || role === "guru") {
             return next({ path: "/admin" });
         }
         return next({ path: "/dashboard" });
