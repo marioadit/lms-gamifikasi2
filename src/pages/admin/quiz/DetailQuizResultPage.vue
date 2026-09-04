@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, getCurrentInstance } from "vue";
+import { ref, computed, onMounted, getCurrentInstance } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useQuizStore } from "../../../store/quizStore.js";
 import { getQuizByQuestionsAPI, getStudentAnswersAdminAPI, getOptionByIdAPI } from "../../../api/quiz/quizApi.js";
@@ -13,12 +13,43 @@ const router = useRouter();
 const quizStore = useQuizStore();
 
 const historyDetail = ref(null);
+const quizInfo = ref(null);
 const questionsList = ref([]);
 const studentAnswersList = ref([]);
 const optionsCache = ref({}); // Cache map for optionId -> optionObj
 const questionsCache = ref({}); // Cache map for questionId -> questionObj
 const isLoading = ref(true);
 const errorMessage = ref(null);
+
+const quizStartTime = computed(() => {
+  return (
+    quizInfo.value?.start_time ||
+    quizInfo.value?.quiz?.start_time ||
+    historyDetail.value?.quiz?.start_time ||
+    historyDetail.value?.start_time ||
+    null
+  );
+});
+
+const quizEndTime = computed(() => {
+  return (
+    quizInfo.value?.end_time ||
+    quizInfo.value?.quiz?.end_time ||
+    historyDetail.value?.quiz?.end_time ||
+    historyDetail.value?.end_time ||
+    null
+  );
+});
+
+const submittedAtTime = computed(() => {
+  return (
+    historyDetail.value?.submitted_at ||
+    historyDetail.value?.created_at ||
+    studentAnswersList.value?.[0]?.submitted_at ||
+    studentAnswersList.value?.[0]?.created_at ||
+    null
+  );
+});
 
 const getFullImgUrl = (path) => {
   if (!path) return null;
@@ -81,14 +112,20 @@ onMounted(async () => {
     const tQuizId = historyDetail.value?.quiz_id || quizId;
     const tStudentId = historyDetail.value?.student_id || studentId;
 
-    if (tQuizId && questionsList.value.length === 0) {
+    if (tQuizId) {
       try {
         const qRes = await getQuizByQuestionsAPI(tQuizId);
-        if (qRes && qRes.data) {
-          if (Array.isArray(qRes.data.questions)) {
-            questionsList.value = qRes.data.questions;
-          } else if (Array.isArray(qRes.data)) {
-            questionsList.value = qRes.data;
+        const qData = qRes?.data || qRes;
+        if (qData) {
+          quizInfo.value = qData;
+          if (questionsList.value.length === 0) {
+            if (Array.isArray(qData.questions)) {
+              questionsList.value = qData.questions;
+            } else if (Array.isArray(qData.quiz?.questions)) {
+              questionsList.value = qData.quiz.questions;
+            } else if (Array.isArray(qData)) {
+              questionsList.value = qData;
+            }
           }
         }
       } catch (qErr) {
@@ -284,7 +321,12 @@ const formatDate = (dateStr) => {
 };
 
 const goBack = () => {
-  router.push("/admin/kuis/hasil");
+  const targetStudentId = route.params.studentId || route.params.id || historyDetail.value?.student_id || historyDetail.value?.student?.id;
+  if (targetStudentId) {
+    router.push(`/admin/kuis/hasil/siswa/${targetStudentId}`);
+  } else {
+    router.push("/admin/kuis/hasil");
+  }
 };
 </script>
 
@@ -297,7 +339,7 @@ const goBack = () => {
         <p class="text-gray-500">Rincian nilai dan hasil pengerjaan kuis siswa</p>
       </div>
       <button @click="goBack" class="btn btn-outline">
-        ← Kembali ke Hasil Kuis
+        ← Kembali ke Riwayat Siswa
       </button>
     </div>
 
@@ -350,14 +392,14 @@ const goBack = () => {
 
       <!-- Performance Metrics Cards -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- Score -->
-        <div class="bg-blue-50/70 border border-blue-100 p-6 rounded-2xl">
-          <h3 class="font-semibold text-gray-700 mb-1">Skor Total</h3>
-          <div class="text-3xl font-extrabold text-blue-600 mb-1">
-            {{ historyDetail.percentage_score }}%
+        <!-- Completion Rate -->
+        <div class="bg-purple-50/70 border border-purple-100 p-6 rounded-2xl">
+          <h3 class="font-semibold text-gray-700 mb-1">Tingkat Penyelesaian</h3>
+          <div class="text-3xl font-extrabold text-purple-600 mb-1">
+            {{ historyDetail.completion_rate }}%
           </div>
           <p class="text-xs text-gray-600">
-            {{ historyDetail.total_score }} / {{ historyDetail.max_possible_score }} Poin Terkumpul
+            {{ historyDetail.answered_questions }} / {{ historyDetail.total_questions }} Dijawab
           </p>
         </div>
 
@@ -372,14 +414,14 @@ const goBack = () => {
           </p>
         </div>
 
-        <!-- Completion Rate -->
-        <div class="bg-purple-50/70 border border-purple-100 p-6 rounded-2xl">
-          <h3 class="font-semibold text-gray-700 mb-1">Tingkat Penyelesaian</h3>
-          <div class="text-3xl font-extrabold text-purple-600 mb-1">
-            {{ historyDetail.completion_rate }}%
+        <!-- Score -->
+        <div class="bg-blue-50/70 border border-blue-100 p-6 rounded-2xl">
+          <h3 class="font-semibold text-gray-700 mb-1">Skor Total</h3>
+          <div class="text-3xl font-extrabold text-blue-600 mb-1">
+            {{ historyDetail.percentage_score }}%
           </div>
           <p class="text-xs text-gray-600">
-            {{ historyDetail.answered_questions }} / {{ historyDetail.total_questions }} Dijawab
+            {{ historyDetail.total_score }} / {{ historyDetail.max_possible_score }} Poin Terkumpul
           </p>
         </div>
       </div>
@@ -392,15 +434,15 @@ const goBack = () => {
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
           <div class="p-3 bg-gray-50 rounded-xl">
             <p class="font-semibold text-gray-500">Mulai Pengerjaan:</p>
-            <p class="font-medium text-gray-800 mt-1">{{ formatDate(historyDetail.start_time) }}</p>
+            <p class="font-medium text-gray-800 mt-1">{{ formatDate(quizStartTime) }}</p>
           </div>
           <div class="p-3 bg-gray-50 rounded-xl">
             <p class="font-semibold text-gray-500">Selesai Pengerjaan:</p>
-            <p class="font-medium text-gray-800 mt-1">{{ formatDate(historyDetail.end_time) }}</p>
+            <p class="font-medium text-gray-800 mt-1">{{ formatDate(quizEndTime) }}</p>
           </div>
           <div class="p-3 bg-gray-50 rounded-xl">
             <p class="font-semibold text-gray-500">Dikumpulkan Pada:</p>
-            <p class="font-medium text-gray-800 mt-1">{{ formatDate(historyDetail.submitted_at || historyDetail.created_at) }}</p>
+            <p class="font-medium text-gray-800 mt-1">{{ formatDate(submittedAtTime) }}</p>
           </div>
         </div>
       </div>

@@ -172,13 +172,13 @@ const goBack = () => {
 
           <!-- Stats Grid -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-blue-50/60 p-4 rounded-xl border border-blue-100">
-              <span class="text-xs font-semibold text-gray-500">Skor Total</span>
-              <div class="text-2xl font-extrabold text-blue-600">
-                {{ result.percentage_score }}%
+            <div class="bg-purple-50/60 p-4 rounded-xl border border-purple-100">
+              <span class="text-xs font-semibold text-gray-500">Tingkat Penyelesaian</span>
+              <div class="text-2xl font-extrabold text-purple-600">
+                {{ result.completion_rate }}%
               </div>
               <p class="text-xs text-gray-500 mt-1">
-                {{ result.total_score }} / {{ result.max_possible_score }} Poin
+                {{ result.answered_questions }} / {{ result.total_questions }} Dijawab
               </p>
             </div>
 
@@ -192,13 +192,13 @@ const goBack = () => {
               </p>
             </div>
 
-            <div class="bg-purple-50/60 p-4 rounded-xl border border-purple-100">
-              <span class="text-xs font-semibold text-gray-500">Tingkat Penyelesaian</span>
-              <div class="text-2xl font-extrabold text-purple-600">
-                {{ result.completion_rate }}%
+            <div class="bg-blue-50/60 p-4 rounded-xl border border-blue-100">
+              <span class="text-xs font-semibold text-gray-500">Skor Total</span>
+              <div class="text-2xl font-extrabold text-blue-600">
+                {{ result.percentage_score }}%
               </div>
               <p class="text-xs text-gray-500 mt-1">
-                {{ result.answered_questions }} / {{ result.total_questions }} Dijawab
+                {{ result.total_score }} / {{ result.max_possible_score }} Poin
               </p>
             </div>
           </div>

@@ -5,8 +5,8 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 
-const navigateToRegister = () => {
-  router.push("/register");
+const navigateToLogin = () => {
+  router.push("/login");
 };
 </script>
 
@@ -25,20 +25,15 @@ const navigateToRegister = () => {
               kami. Pantau kemajuan, dapatkan hadiah, dan capai tujuan Anda.
             </p>
             <div class="flex justify-center md:justify-start mt-6">
-              <button
-                @click="navigateToRegister"
-                class="flex w-full md:w-1/3 items-center justify-center gap-2 px-6 py-3 bg-primary text-white rounded-2xl hover:opacity-85 text-lg"
-              >
+              <button @click="navigateToLogin"
+                class="flex w-full md:w-1/3 items-center justify-center gap-2 px-6 py-3 bg-primary text-white rounded-2xl hover:opacity-85 text-lg">
                 <span>Mulai Sekarang</span>
               </button>
             </div>
           </div>
           <div class="md:w-1/2 flex justify-end z-index">
-            <Vue3Lottie
-              animation-link="https://lottie.host/899dbca9-631c-416a-ae2f-20fcfbfa46a9/Bw6plokc5l.json"
-              :height="400"
-              :width="400"
-            />
+            <Vue3Lottie animation-link="https://lottie.host/899dbca9-631c-416a-ae2f-20fcfbfa46a9/Bw6plokc5l.json"
+              :height="400" :width="400" />
           </div>
         </div>
       </div>
@@ -57,15 +52,10 @@ const navigateToRegister = () => {
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           <!-- Feature 1 -->
-          <div
-            class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow"
-          >
+          <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
             <div class="card-body items-center text-center">
-              <Vue3Lottie
-                animation-link="https://lottie.host/ae7edca3-a135-4a71-888c-7c6b236b40a4/mv24L0rUU3.json"
-                :height="150"
-                :width="150"
-              />
+              <Vue3Lottie animation-link="https://lottie.host/ae7edca3-a135-4a71-888c-7c6b236b40a4/mv24L0rUU3.json"
+                :height="150" :width="150" />
               <h3 class="card-title text-xl font-bold">Belajar dengan Game</h3>
               <p class="text-gray-600">
                 Ubah belajar menjadi permainan dengan poin, lencana, dan
@@ -75,15 +65,10 @@ const navigateToRegister = () => {
           </div>
 
           <!-- Feature 2 -->
-          <div
-            class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow"
-          >
+          <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
             <div class="card-body items-center text-center">
-              <Vue3Lottie
-                animation-link="https://lottie.host/cd5631a4-1add-42ad-be39-5fdd7fb8d19e/E6HFLGG5mX.json"
-                :height="150"
-                :width="150"
-              />
+              <Vue3Lottie animation-link="https://lottie.host/cd5631a4-1add-42ad-be39-5fdd7fb8d19e/E6HFLGG5mX.json"
+                :height="150" :width="150" />
               <h3 class="card-title text-xl font-bold">Pantau Kemajuan</h3>
               <p class="text-gray-600">
                 Pantau peningkatan Anda dengan analitik detail dan wawasan yang
@@ -93,15 +78,10 @@ const navigateToRegister = () => {
           </div>
 
           <!-- Feature 3 -->
-          <div
-            class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow"
-          >
+          <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
             <div class="card-body items-center text-center">
-              <Vue3Lottie
-                animation-link="https://lottie.host/adc14812-9279-4436-8754-3ee1d23df76b/KoWjjRAwbT.json"
-                :height="150"
-                :width="150"
-              />
+              <Vue3Lottie animation-link="https://lottie.host/adc14812-9279-4436-8754-3ee1d23df76b/KoWjjRAwbT.json"
+                :height="150" :width="150" />
               <h3 class="card-title text-xl font-bold">Konten Interaktif</h3>
               <p class="text-gray-600">
                 Terlibat dengan pelajaran dinamis dan interaktif yang membuat
@@ -125,54 +105,34 @@ const navigateToRegister = () => {
         </div>
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-          <div
-            class="card bg-blue-100 hover:bg-blue-200 transition-all transform hover:scale-105 cursor-pointer"
-          >
+          <div class="card bg-blue-100 hover:bg-blue-200 transition-all transform hover:scale-105 cursor-pointer">
             <div class="card-body items-center text-center">
-              <Vue3Lottie
-                animation-link="https://lottie.host/a391320c-8e32-4434-8a08-88c7e697c37f/wVjp6w6GnG.json"
-                :height="100"
-                :width="100"
-              />
+              <Vue3Lottie animation-link="https://lottie.host/a391320c-8e32-4434-8a08-88c7e697c37f/wVjp6w6GnG.json"
+                :height="100" :width="100" />
               <h3 class="font-bold">Matematika</h3>
             </div>
           </div>
 
-          <div
-            class="card bg-green-100 hover:bg-green-200 transition-all transform hover:scale-105 cursor-pointer"
-          >
+          <div class="card bg-green-100 hover:bg-green-200 transition-all transform hover:scale-105 cursor-pointer">
             <div class="card-body items-center text-center">
-              <Vue3Lottie
-                animation-link="https://lottie.host/1cbd193f-b523-42f6-8fc1-a90538eb4fae/I3k5A6EFaO.json"
-                :height="100"
-                :width="100"
-              />
+              <Vue3Lottie animation-link="https://lottie.host/1cbd193f-b523-42f6-8fc1-a90538eb4fae/I3k5A6EFaO.json"
+                :height="100" :width="100" />
               <h3 class="font-bold">Membaca</h3>
             </div>
           </div>
 
-          <div
-            class="card bg-yellow-100 hover:bg-yellow-200 transition-all transform hover:scale-105 cursor-pointer"
-          >
+          <div class="card bg-yellow-100 hover:bg-yellow-200 transition-all transform hover:scale-105 cursor-pointer">
             <div class="card-body items-center text-center">
-              <Vue3Lottie
-                animation-link="https://lottie.host/93f3addf-5cd1-4c26-85ec-c5d651939bb8/nEOBPbCDLl.json"
-                :height="100"
-                :width="100"
-              />
+              <Vue3Lottie animation-link="https://lottie.host/93f3addf-5cd1-4c26-85ec-c5d651939bb8/nEOBPbCDLl.json"
+                :height="100" :width="100" />
               <h3 class="font-bold">Menulis</h3>
             </div>
           </div>
 
-          <div
-            class="card bg-purple-100 hover:bg-purple-200 transition-all transform hover:scale-105 cursor-pointer"
-          >
+          <div class="card bg-purple-100 hover:bg-purple-200 transition-all transform hover:scale-105 cursor-pointer">
             <div class="card-body items-center text-center">
-              <Vue3Lottie
-                animation-link="https://assets5.lottiefiles.com/packages/lf20_xyadoh9h.json"
-                :height="100"
-                :width="100"
-              />
+              <Vue3Lottie animation-link="https://assets5.lottiefiles.com/packages/lf20_xyadoh9h.json" :height="100"
+                :width="100" />
               <h3 class="font-bold">Sains</h3>
             </div>
           </div>
