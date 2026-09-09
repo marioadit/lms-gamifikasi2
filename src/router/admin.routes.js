@@ -1,5 +1,6 @@
 import AppLayouts from "../components/admin/layouts/AppLayouts.vue";
-import Dashboard from "../pages/admin/Dashboard.vue";
+import DashboardAdmin from "../pages/admin/DashboardAdmin.vue";
+import DashboardGuru from "../pages/admin/DashboardGuru.vue";
 import ClassesPage from "../pages/admin/ClassesPage.vue";
 import LessonsPage from "../pages/admin/LessonsPage.vue";
 import BadgesPage from "../pages/admin/BadgesPage.vue";
@@ -38,7 +39,7 @@ import AdminProfilePage from "../pages/admin/profile/AdminProfilePage.vue";
 const guardAdminOnly = (to, from, next) => {
     const role = localStorage.getItem("role");
     if (role === "guru") {
-        return next({ path: "/admin/users/siswa" });
+        return next({ path: "/admin/dashboard/teacher" });
     }
     next();
 };
@@ -56,15 +57,41 @@ export default [
                 meta: { title: "Profil Saya", requiresAuth: true }
             },
             {
-                path: "",  // Empty path means this will be the default for /admin
-                name: "adminDashboard",
-                component: Dashboard,
-                meta: { title: "Admin Dashboard", requiresAuth: true }
+                path: "",  // Default route for /admin
+                redirect: () => {
+                    const role = localStorage.getItem("role");
+                    if (role === "guru") {
+                        return { name: "teacherDashboard" };
+                    }
+                    return { name: "adminDashboard" };
+                }
             },
-            // Keep the original route as an alias to maintain backward compatibility
             {
                 path: "dashboard",
-                redirect: { name: "adminDashboard" }
+                redirect: () => {
+                    const role = localStorage.getItem("role");
+                    if (role === "guru") {
+                        return { name: "teacherDashboard" };
+                    }
+                    return { name: "adminDashboard" };
+                }
+            },
+            {
+                path: "dashboard/admin",
+                name: "adminDashboard",
+                component: DashboardAdmin,
+                beforeEnter: guardAdminOnly,
+                meta: { title: "Dashboard Admin", requiresAuth: true }
+            },
+            {
+                path: "dashboard/teacher",
+                name: "teacherDashboard",
+                component: DashboardGuru,
+                meta: { title: "Dashboard Guru", requiresAuth: true }
+            },
+            {
+                path: "dashboard/guru",
+                redirect: { name: "teacherDashboard" }
             },
             // Kelas management
             {

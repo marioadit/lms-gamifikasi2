@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { useAuthStore } from "../../../store/authStore";
 import {
   HomeIcon,
   AcademicCapIcon,
@@ -19,10 +20,11 @@ import {
 import Swal from "sweetalert2";
 
 const route = useRoute();
+const authStore = useAuthStore();
 const isUserMenuOpen = ref(false);
 const isQuizMenuOpen = ref(false);
 
-const userRole = computed(() => localStorage.getItem("role") || "");
+const userRole = computed(() => authStore.userRole || localStorage.getItem("role") || "");
 
 const toggleUserMenu = () => {
   isUserMenuOpen.value = !isUserMenuOpen.value;
@@ -41,9 +43,9 @@ const logout = () => {
     cancelButtonColor: "#d33",
   }).then((result) => {
     if (result.isConfirmed) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("role");
-      window.location.href = "/login"; // because RouterLink is not used in logout
+      authStore.clearUserData();
+      authStore.clearLocalStorage();
+      window.location.href = "/login";
     }
   });
 };
@@ -61,39 +63,40 @@ const logout = () => {
 
     <!-- Navigation Links -->
     <ul class="menu menu-md p-0 [&_li>*]:rounded-lg w-full space-y-2">
-      <li>
-        <router-link to="/admin" :class="{ active: $route.path === '/admin' }">
+      <!-- Dashboard Admin (Tampil hanya jika role === 'admin') -->
+      <li v-if="userRole === 'admin'">
+        <router-link to="/admin/dashboard/admin"
+          :class="{ active: $route.path === '/admin' || $route.path === '/admin/dashboard' || $route.path.includes('/admin/dashboard/admin') }">
           <HomeIcon class="w-5 h-5" />
-          <span>Dashboard</span>
+          <span>Dashboard Admin</span>
+        </router-link>
+      </li>
+      <!-- Dashboard Guru (Tampil hanya jika role === 'guru') -->
+      <li v-if="userRole === 'guru'">
+        <router-link to="/admin/dashboard/teacher"
+          :class="{ active: $route.path.includes('/admin/dashboard/teacher') || $route.path.includes('/admin/dashboard/guru') }">
+          <ChartBarIcon class="w-5 h-5" />
+          <span>Dashboard Guru</span>
         </router-link>
       </li>
       <li>
-        <router-link
-          to="/admin/kelas"
-          :class="{ active: $route.path.includes('/admin/kelas') }"
-        >
+        <router-link to="/admin/kelas" :class="{ active: $route.path.includes('/admin/kelas') }">
           <AcademicCapIcon class="w-5 h-5" />
           <span>Kelola Kelas</span>
         </router-link>
       </li>
       <li>
-        <router-link
-          to="/admin/pelajaran"
-          :class="{ active: $route.path.includes('/admin/pelajaran') }"
-        >
+        <router-link to="/admin/pelajaran" :class="{ active: $route.path.includes('/admin/pelajaran') }">
           <BookOpenIcon class="w-5 h-5" />
           <span>Kelola Pelajaran</span>
         </router-link>
       </li>
       <li>
-        <div
-          @click="toggleQuizMenu"
-          class="flex items-center justify-between p-3 hover:bg-base-300 cursor-pointer"
+        <div @click="toggleQuizMenu" class="flex items-center justify-between p-3 hover:bg-base-300 cursor-pointer"
           :class="{
             'bg-base-300':
               isQuizMenuOpen || $route.path.includes('/admin/kuis'),
-          }"
-        >
+          }">
           <div class="flex items-center gap-2">
             <PencilSquareIcon class="w-5 h-5" />
             <span>Kelola Kuis</span>
@@ -105,25 +108,17 @@ const logout = () => {
         <!-- Submenu -->
         <ul v-show="isQuizMenuOpen" class="pl-4 mt-1 space-y-1">
           <li>
-            <router-link
-              to="/admin/kuis"
-              class="flex items-center gap-2 p-2 rounded-md hover:bg-base-300"
-              :class="{
-                'bg-primary text-white': $route.path === '/admin/kuis',
-              }"
-            >
+            <router-link to="/admin/kuis" class="flex items-center gap-2 p-2 rounded-md hover:bg-base-300" :class="{
+              'bg-primary text-white': $route.path === '/admin/kuis',
+            }">
               <UserIcon class="w-4 h-4" />
               <span>Daftar Kuis</span>
             </router-link>
           </li>
           <li>
-            <router-link
-              to="/admin/kuis/hasil"
-              class="flex items-center gap-2 p-2 rounded-md hover:bg-base-300"
-              :class="{
-                'bg-primary text-white': $route.path.includes('/admin/kuis/hasil'),
-              }"
-            >
+            <router-link to="/admin/kuis/hasil" class="flex items-center gap-2 p-2 rounded-md hover:bg-base-300" :class="{
+              'bg-primary text-white': $route.path.includes('/admin/kuis/hasil'),
+            }">
               <UserIcon class="w-4 h-4" />
               <span>Hasil Kuis</span>
             </router-link>
@@ -133,16 +128,13 @@ const logout = () => {
 
       <!-- Collapsible User Management Menu -->
       <li>
-        <div
-          @click="toggleUserMenu"
-          class="flex items-center justify-between p-3 hover:bg-base-300 cursor-pointer"
+        <div @click="toggleUserMenu" class="flex items-center justify-between p-3 hover:bg-base-300 cursor-pointer"
           :class="{
             'bg-base-300':
               isUserMenuOpen ||
               $route.path.includes('/admin/users/siswa') ||
               $route.path.includes('/admin/users/guru'),
-          }"
-        >
+          }">
           <div class="flex items-center gap-2">
             <UserGroupIcon class="w-5 h-5" />
             <span>Kelola Users</span>
@@ -154,25 +146,18 @@ const logout = () => {
         <!-- Submenu -->
         <ul v-show="isUserMenuOpen" class="pl-4 mt-1 space-y-1">
           <li>
-            <router-link
-              to="/admin/users/siswa"
-              class="flex items-center gap-2 p-2 rounded-md hover:bg-base-300"
+            <router-link to="/admin/users/siswa" class="flex items-center gap-2 p-2 rounded-md hover:bg-base-300"
               :class="{
                 'bg-primary text-white': $route.path.includes('/admin/users/siswa'),
-              }"
-            >
+              }">
               <UserIcon class="w-4 h-4" />
               <span>Kelola Siswa</span>
             </router-link>
           </li>
           <li v-if="userRole === 'admin'">
-            <router-link
-              to="/admin/users/guru"
-              class="flex items-center gap-2 p-2 rounded-md hover:bg-base-300"
-              :class="{
-                'bg-primary text-white': $route.path.includes('/admin/users/guru'),
-              }"
-            >
+            <router-link to="/admin/users/guru" class="flex items-center gap-2 p-2 rounded-md hover:bg-base-300" :class="{
+              'bg-primary text-white': $route.path.includes('/admin/users/guru'),
+            }">
               <UserIcon class="w-4 h-4" />
               <span>Kelola Guru</span>
             </router-link>
@@ -211,11 +196,9 @@ const logout = () => {
 
     <!-- User Profile Section at Bottom -->
     <div class="mt-auto">
-      <router-link
-        to="/admin/profile"
+      <router-link to="/admin/profile"
         class="p-3 flex items-center gap-3 hover:bg-base-300 rounded-xl cursor-pointer transition-colors"
-        :class="{ 'bg-base-300 font-bold': $route.path === '/admin/profile' }"
-      >
+        :class="{ 'bg-base-300 font-bold': $route.path === '/admin/profile' }">
         <div class="avatar">
           <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg">
             👤
@@ -227,10 +210,8 @@ const logout = () => {
         </div>
       </router-link>
 
-      <button
-        @click="logout"
-        class="w-full menu-item flex items-center gap-2 p-3 hover:bg-base-300 rounded-xl cursor-pointer text-red-600 font-semibold mt-1"
-      >
+      <button @click="logout"
+        class="w-full menu-item flex items-center gap-2 p-3 hover:bg-base-300 rounded-xl cursor-pointer text-red-600 font-semibold mt-1">
         <ArrowRightOnRectangleIcon class="w-5 h-5" />
         <span>Keluar</span>
       </button>
