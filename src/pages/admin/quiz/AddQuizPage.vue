@@ -1,6 +1,6 @@
 <script setup>
 import { useRouter, useRoute } from "vue-router";
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useLessonsStore } from "../../../store/lessonsStore";
 import { useQuizStore } from "../../../store/quizStore";
 import Swal from "sweetalert2";

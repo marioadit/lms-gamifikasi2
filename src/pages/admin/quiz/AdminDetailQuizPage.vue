@@ -24,10 +24,23 @@ const toggleDescription = (quizId) => {
   expandedDescriptions.value[quizId] = !expandedDescriptions.value[quizId];
 };
 
+const lessonQuizzes = computed(() => {
+  if (lesson.value?.quizzes && Array.isArray(lesson.value.quizzes) && lesson.value.quizzes.length > 0) {
+    return lesson.value.quizzes;
+  }
+  if (quizStore.quizzes && quizStore.quizzes.length > 0 && lessonId.value) {
+    return quizStore.quizzes.filter(q => Number(q.lesson_id) === Number(lessonId.value));
+  }
+  return [];
+});
+
 // Function to load data
 const loadData = async () => {
   try {
-    await lessonsStore.getLessonsById(lessonId.value);
+    await Promise.all([
+      lessonsStore.getLessonsById(lessonId.value),
+      quizStore.getQuizzes().catch(() => null)
+    ]);
   } catch (error) {
     console.error('Error fetching lesson details:', error);
   }
@@ -92,7 +105,7 @@ const formatDate = (dateString) => {
       <div>
         <h1 class="text-2xl font-bold text-gray-800">Detail Pelajaran & Kuis 📚</h1>
         <p class="text-gray-500" v-if="lesson">
-          {{ lesson.title }} ({{ lesson.quizzes?.length || 0 }} Kuis Tersedia)
+          {{ lesson.title }} ({{ lessonQuizzes.length }} Kuis Tersedia)
         </p>
       </div>
       <div class="flex gap-2">
@@ -158,7 +171,7 @@ const formatDate = (dateString) => {
       <div class="col-span-1 md:col-span-2 space-y-4">
         <div class="flex justify-between items-center bg-white p-4 rounded-2xl shadow border border-gray-100">
           <h2 class="text-xl font-bold text-gray-800">
-            📝 Daftar Kuis ({{ lesson.quizzes?.length || 0 }})
+            📝 Daftar Kuis ({{ lessonQuizzes.length }})
           </h2>
           <router-link 
             :to="`/admin/kuis/tambah?lesson_id=${lesson.id}`" 
@@ -169,9 +182,9 @@ const formatDate = (dateString) => {
         </div>
 
         <!-- Quiz Cards List -->
-        <div v-if="lesson.quizzes?.length > 0" class="space-y-4">
+        <div v-if="lessonQuizzes.length > 0" class="space-y-4">
           <div 
-            v-for="quiz in lesson.quizzes" 
+            v-for="quiz in lessonQuizzes" 
             :key="quiz.id" 
             class="bg-white p-6 rounded-2xl shadow border border-gray-100 space-y-4 hover:shadow-md transition-shadow"
           >

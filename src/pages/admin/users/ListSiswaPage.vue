@@ -30,8 +30,30 @@ const loadClasses = async () => {
 onMounted(loadClasses);
 
 const students = computed(() => {
-  return studentStore.students || [];
+  const allStudents = studentStore.students || [];
+  if (userRole.value === 'guru') {
+    return allStudents.filter(student => {
+      if (!student || !Array.isArray(student.classes_enrolled)) return false;
+      return student.classes_enrolled.some(c => 
+        (myClassIds.value && myClassIds.value.includes(c.id)) || 
+        Number(c.teacher_id || c.teacher?.id) === currentUserId.value
+      );
+    });
+  }
+  return allStudents;
 });
+
+const getStudentClasses = (student) => {
+  if (!student || !Array.isArray(student.classes_enrolled)) return [];
+  if (userRole.value === 'guru') {
+    const filtered = student.classes_enrolled.filter(c => 
+      (myClassIds.value && myClassIds.value.includes(c.id)) || 
+      Number(c.teacher_id || c.teacher?.id) === currentUserId.value
+    );
+    return filtered.length > 0 ? filtered : student.classes_enrolled;
+  }
+  return student.classes_enrolled;
+};
 
 const canManageStudent = (student) => {
   if (userRole.value === 'admin') return true;
@@ -157,10 +179,10 @@ const handleDeleteStudent = async () => {
             <td class="font-medium text-gray-900">{{ student.name }}</td>
             <td class="text-gray-600">{{ student.email }}</td>
             <td>
-              <template v-if="student.classes_enrolled && student.classes_enrolled.length > 0">
+              <template v-if="getStudentClasses(student) && getStudentClasses(student).length > 0">
                 <div class="flex flex-wrap gap-1">
                   <span 
-                    v-for="clases in student.classes_enrolled" 
+                    v-for="clases in getStudentClasses(student)" 
                     :key="clases.id" 
                     class="badge badge-accent badge-sm font-medium"
                   >

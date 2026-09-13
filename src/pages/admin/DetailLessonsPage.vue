@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useLessonsStore } from "../../store/lessonsStore";
+import { useQuizStore } from "../../store/quizStore";
 import { getCurrentInstance } from 'vue';
 
 const { proxy } = getCurrentInstance();
@@ -9,12 +10,23 @@ const base_url = proxy?.$base_url || "";
 const route = useRoute();
 const router = useRouter();
 const lessonsStore = useLessonsStore();
+const quizStore = useQuizStore();
 
 const lessonsId = ref(parseInt(route.params.id));
 const isLoading = ref(false);
 const errorMessage = ref("");
 
 const lesson = computed(() => lessonsStore.selectedLesson);
+
+const lessonQuizzes = computed(() => {
+  if (lesson.value?.quizzes && Array.isArray(lesson.value.quizzes) && lesson.value.quizzes.length > 0) {
+    return lesson.value.quizzes;
+  }
+  if (quizStore.quizzes && quizStore.quizzes.length > 0 && lessonsId.value) {
+    return quizStore.quizzes.filter(q => Number(q.lesson_id) === Number(lessonsId.value));
+  }
+  return [];
+});
 
 const getFullThumbnailUrl = (thumbnail) => {
   if (!thumbnail) return null;
@@ -28,7 +40,10 @@ const goBack = () => {
 onMounted(async () => {
   try {
     isLoading.value = true;
-    await lessonsStore.getLessonsById(lessonsId.value);
+    await Promise.all([
+      lessonsStore.getLessonsById(lessonsId.value),
+      quizStore.getQuizzes().catch(() => null)
+    ]);
   } catch (error) {
     console.error("Error loading lesson:", error);
     errorMessage.value = "Gagal memuat data pelajaran";
@@ -114,7 +129,7 @@ onMounted(async () => {
           <!-- Quizzes Section -->
           <div class="border-t border-gray-100 pt-6 space-y-4">
             <div class="flex justify-between items-center">
-              <h3 class="text-lg font-bold text-gray-800">Daftar Kuis ({{ lesson.quizzes?.length || 0 }})</h3>
+              <h3 class="text-lg font-bold text-gray-800">Daftar Kuis ({{ lessonQuizzes.length }})</h3>
               <router-link 
                 :to="`/admin/kuis/tambah?lesson_id=${lesson.id}`" 
                 class="btn btn-primary btn-sm text-white"
@@ -123,9 +138,9 @@ onMounted(async () => {
               </router-link>
             </div>
 
-            <div v-if="lesson.quizzes && lesson.quizzes.length > 0" class="space-y-3">
+            <div v-if="lessonQuizzes.length > 0" class="space-y-3">
               <div 
-                v-for="quiz in lesson.quizzes" 
+                v-for="quiz in lessonQuizzes" 
                 :key="quiz.id"
                 class="bg-gray-50 p-4 rounded-xl border border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3"
               >

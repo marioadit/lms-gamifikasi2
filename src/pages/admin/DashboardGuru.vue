@@ -12,6 +12,9 @@ import {
   MagnifyingGlassIcon,
 } from "@heroicons/vue/24/outline";
 
+import { useAuthStore } from "../../store/authStore";
+
+const authStore = useAuthStore();
 const isLoading = ref(true);
 const errorMsg = ref("");
 
@@ -28,6 +31,14 @@ const classProgress = ref([]);
 const students = ref([]);
 const activeTab = ref("progress"); // 'progress' | 'students'
 const studentSearch = ref("");
+
+const getTeacherClasses = (st) => {
+  if (!st || !Array.isArray(st.classes_enrolled)) return [];
+  const currentUserId = authStore.currentUserId;
+  if (!currentUserId) return st.classes_enrolled;
+  const filtered = st.classes_enrolled.filter(c => Number(c.teacher_id || c.teacher?.id) === currentUserId);
+  return filtered.length > 0 ? filtered : st.classes_enrolled;
+};
 
 const fetchTeacherDashboard = async () => {
   isLoading.value = true;
@@ -60,7 +71,7 @@ const filteredStudents = computed(() => {
     (st) =>
       st.name?.toLowerCase().includes(q) ||
       st.email?.toLowerCase().includes(q) ||
-      st.classes_enrolled?.some((c) => c.name?.toLowerCase().includes(q))
+      getTeacherClasses(st)?.some((c) => c.name?.toLowerCase().includes(q))
   );
 });
 
@@ -320,8 +331,8 @@ onMounted(() => {
                   <td class="text-sm text-base-content/70">{{ st.email }}</td>
                   <td>
                     <div class="flex flex-wrap gap-1">
-                      <template v-if="st.classes_enrolled && st.classes_enrolled.length > 0">
-                        <span v-for="cls in st.classes_enrolled" :key="cls.id"
+                      <template v-if="getTeacherClasses(st) && getTeacherClasses(st).length > 0">
+                        <span v-for="cls in getTeacherClasses(st)" :key="cls.id"
                           class="badge badge-accent badge-sm font-semibold">
                           {{ cls.name }} ({{ cls.academic_year }})
                         </span>

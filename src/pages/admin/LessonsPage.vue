@@ -7,11 +7,13 @@ import { getCurrentInstance } from 'vue';
 import Swal from "sweetalert2";
 
 import { useAuthStore } from "../../store/authStore";
+import { useQuizStore } from "../../store/quizStore";
 
 const route = useRoute();
 const lessonsStore = useLessonsStore();
 const classesStore = useClassesStore();
 const authStore = useAuthStore();
+const quizStore = useQuizStore();
 
 const userRole = computed(() => authStore.userRole);
 const currentUserId = computed(() => authStore.currentUserId);
@@ -34,7 +36,10 @@ const { proxy } = getCurrentInstance();
 const base_url = proxy.$base_url;
 
 const loadLessons = async () => {
-  await lessonsStore.getLessons();
+  await Promise.all([
+    lessonsStore.getLessons(),
+    quizStore.getQuizzes().catch(() => null)
+  ]);
 };
 
 const loadClasses = async () => {
@@ -78,8 +83,12 @@ const getQuizCount = (lesson) => {
   if (!lesson) return 0;
   if (typeof lesson.quizzes_count === "number") return lesson.quizzes_count;
   if (typeof lesson.quiz_count === "number") return lesson.quiz_count;
-  if (Array.isArray(lesson.quizzes)) return lesson.quizzes.length;
+  if (Array.isArray(lesson.quizzes) && lesson.quizzes.length > 0) return lesson.quizzes.length;
   if (lesson.quiz) return 1;
+
+  if (quizStore.quizzes && quizStore.quizzes.length > 0) {
+    return quizStore.quizzes.filter(q => Number(q.lesson_id) === Number(lesson.id)).length;
+  }
   return 0;
 };
 
