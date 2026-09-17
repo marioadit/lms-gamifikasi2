@@ -1,8 +1,16 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import { useQuizStore } from "../../../store/quizStore";
+import { useStudentStore } from "../../../store/studentStore";
+import { useClassesStore } from "../../../store/classesStore";
+import { useLessonsStore } from "../../../store/lessonsStore";
+import { useAuthStore } from "../../../store/authStore";
 
 const quizStore = useQuizStore();
+const studentStore = useStudentStore();
+const classesStore = useClassesStore();
+const lessonsStore = useLessonsStore();
+const authStore = useAuthStore();
 
 const answerHistories = ref([]);
 const totalQuizzesCount = ref(0);
@@ -12,6 +20,28 @@ const errorMessage = ref(null);
 const searchQuery = ref("");
 const selectedClass = ref("");
 
+const userRole = computed(() => authStore.userRole || localStorage.getItem("role"));
+const currentUserId = computed(() => Number(authStore.currentUserId || authStore.user?.id || localStorage.getItem("user_id")));
+
+const myClassIds = computed(() => {
+  if (userRole.value !== 'guru') return null;
+  const list = classesStore.classes || [];
+  return list
+    .filter(cls => Number(cls.teacher_id || cls.teacher?.id || 0) === currentUserId.value)
+    .map(cls => Number(cls.id));
+});
+
+const isStudentInGuruClasses = (student) => {
+  if (userRole.value !== 'guru') return true;
+  const classes = student.classes_enrolled || student.classesEnrolled || student.classes || [];
+  if (!Array.isArray(classes)) return false;
+  return classes.some(c => {
+    const cId = Number(c.id || c.class_id);
+    const tId = Number(c.teacher_id || c.teacher?.id || 0);
+    return (myClassIds.value && myClassIds.value.includes(cId)) || (tId > 0 && tId === currentUserId.value);
+  });
+};
+
 const loadData = async () => {
   isLoading.value = true;
   errorMessage.value = null;
@@ -19,7 +49,10 @@ const loadData = async () => {
   try {
     const [resHistories, resQuizzes] = await Promise.all([
       quizStore.getAdminAnswerHistory().catch(() => null),
-      quizStore.getQuizzes().catch(() => null)
+      quizStore.getQuizzes().catch(() => null),
+      studentStore.getUserStudent().catch(() => null),
+      classesStore.getClasses().catch(() => null),
+      lessonsStore.getLessons().catch(() => null)
     ]);
 
     // Process Answer Histories
@@ -47,31 +80,158 @@ const loadData = async () => {
 
 onMounted(loadData);
 
-// Group histories by student
+const totalAvailableQuizzesCount = computed(() => {
+  const allQuizzes = quizStore.quizzes || [];
+  if (userRole.value === 'guru' && myClassIds.value) {
+    const allLessons = lessonsStore.lessons || [];
+    const teacherLessonIds = allLessons
+      .filter(l => myClassIds.value.includes(Number(l.class_id)))
+      .map(l => Number(l.id));
+    
+    if (teacherLessonIds.length > 0) {
+      const teacherQuizzes = allQuizzes.filter(q => teacherLessonIds.includes(Number(q.lesson_id)));
+      if (teacherQuizzes.length > 0) return teacherQuizzes.length;
+    }
+  }
+  return allQuizzes.length > 0 ? allQuizzes.length : totalQuizzesCount.value;
+});
+
+// Group histories by student (including students who haven't taken any quiz)
 const studentSummaryList = computed(() => {
   const map = new Map();
 
+  // 1. Initialize map with registered students from studentStore
+  const allStudents = studentStore.students || [];
+
+  allStudents.forEach((student) => {
+    const sId = student.id;
+    if (!sId) return;
+
+    // Filter for teacher role: only include students in teacher's classes
+    if (userRole.value === 'guru' && !isStudentInGuruClasses(student)) {
+      return;
+    }
+
+    const classes = student.classes_enrolled || student.classesEnrolled || student.classes || [];
+    let className = "Tidak ada kelas";
+    let classId = null;
+
+    if (Array.isArray(classes) && classes.length > 0) {
+      const relevantClasses = userRole.value === 'guru'
+        ? classes.filter(c => {
+            const cId = Number(c.id || c.class_id);
+            const tId = Number(c.teacher_id || c.teacher?.id || 0);
+            return (myClassIds.value && myClassIds.value.includes(cId)) || (tId > 0 && tId === currentUserId.value);
+          })
+        : classes;
+
+      const activeClasses = relevantClasses.length > 0 ? relevantClasses : classes;
+      className = activeClasses.map((c) => c.name || c.class_name).filter(Boolean).join(", ") || "Tidak ada kelas";
+      classId = activeClasses[0]?.id || null;
+    } else if (typeof classes === "object" && classes?.name) {
+      className = classes.name;
+      classId = classes.id || null;
+    }
+
+    map.set(sId, {
+      student_id: sId,
+      student_name: student.name || "Siswa",
+      student_email: student.email || "-",
+      class_name: className,
+      class_id: classId,
+      raw_classes: classes,
+      histories: []
+    });
+  });
+
+  // 2. Merge answer histories
   answerHistories.value.forEach((item) => {
     const sId = item.student_id || item.student?.id;
     if (!sId) return;
 
     if (!map.has(sId)) {
-      map.set(sId, {
-        student_id: sId,
-        student_name: item.student_name || item.student?.name || "Siswa",
-        student_email: item.student?.email || "-",
-        class_name: item.class_name || item.class?.name || "Tidak ada kelas",
-        class_id: item.class_id || item.class?.id,
-        histories: []
+      if (userRole.value !== 'guru') {
+        map.set(sId, {
+          student_id: sId,
+          student_name: item.student_name || item.student?.name || "Siswa",
+          student_email: item.student?.email || "-",
+          class_name: item.class_name || item.class?.name || "Tidak ada kelas",
+          class_id: item.class_id || item.class?.id,
+          raw_classes: item.class ? [item.class] : [],
+          histories: []
+        });
+      } else {
+        const itemClassId = Number(item.class_id || item.class?.id || 0);
+        if (itemClassId > 0 && myClassIds.value && myClassIds.value.includes(itemClassId)) {
+          map.set(sId, {
+            student_id: sId,
+            student_name: item.student_name || item.student?.name || "Siswa",
+            student_email: item.student?.email || "-",
+            class_name: item.class_name || item.class?.name || "Tidak ada kelas",
+            class_id: itemClassId,
+            raw_classes: item.class ? [item.class] : [],
+            histories: []
+          });
+        } else {
+          return;
+        }
+      }
+    }
+
+    const existing = map.get(sId);
+    if (item.class_name && existing.class_name === "Tidak ada kelas") {
+      existing.class_name = item.class_name;
+    }
+    if (item.class_id && !existing.class_id) {
+      existing.class_id = item.class_id;
+    }
+    existing.histories.push(item);
+  });
+
+  // 3. Calculate aggregates for each student based on RELEVANT quizzes for their classes
+  const allLessons = lessonsStore.lessons || [];
+  const allQuizzes = quizStore.quizzes || [];
+
+  return Array.from(map.values()).map((s) => {
+    const totalCompleted = s.histories.length;
+
+    // Extract student's class IDs
+    const studentClassIds = new Set();
+    if (s.class_id) studentClassIds.add(Number(s.class_id));
+
+    if (Array.isArray(s.raw_classes)) {
+      s.raw_classes.forEach((c) => {
+        const cId = Number(c.id || c.class_id);
+        if (cId > 0) studentClassIds.add(cId);
       });
     }
 
-    map.get(sId).histories.push(item);
-  });
+    const classIdArray = Array.from(studentClassIds);
 
-  // Calculate aggregates for each student
-  return Array.from(map.values()).map((s) => {
-    const totalCompleted = s.histories.length;
+    // Find lessons belonging to student's classes
+    const relevantLessonIds = allLessons
+      .filter((l) => classIdArray.includes(Number(l.class_id)))
+      .map((l) => Number(l.id));
+
+    // Find quizzes belonging to student's classes or lessons
+    const relevantQuizzes = allQuizzes.filter((q) => {
+      const qClassId = Number(q.class_id || q.lesson?.class_id || 0);
+      const qLessonId = Number(q.lesson_id);
+      return (qClassId > 0 && classIdArray.includes(qClassId)) ||
+             (qLessonId > 0 && relevantLessonIds.includes(qLessonId));
+    });
+
+    let totalAvailable = totalCompleted;
+    if (classIdArray.length > 0) {
+      totalAvailable = relevantQuizzes.length;
+    } else if (totalAvailableQuizzesCount.value > 0) {
+      totalAvailable = totalAvailableQuizzesCount.value;
+    }
+
+    if (totalCompleted > totalAvailable) {
+      totalAvailable = totalCompleted;
+    }
+
     const sumPercentage = s.histories.reduce((acc, h) => {
       const score = parseFloat(h.percentage_score ?? 0);
       return acc + (isNaN(score) ? 0 : score);
@@ -82,7 +242,7 @@ const studentSummaryList = computed(() => {
     return {
       ...s,
       completed_count: totalCompleted,
-      total_available: totalQuizzesCount.value > 0 ? totalQuizzesCount.value : totalCompleted,
+      total_available: totalAvailable,
       average_score: avgScore
     };
   });
@@ -92,8 +252,11 @@ const studentSummaryList = computed(() => {
 const uniqueClasses = computed(() => {
   const map = new Map();
   studentSummaryList.value.forEach((item) => {
-    if (item.class_name && !map.has(item.class_name)) {
-      map.set(item.class_name, item.class_name);
+    if (item.class_name && item.class_name !== "Tidak ada kelas") {
+      const names = item.class_name.split(",").map(n => n.trim());
+      names.forEach(n => {
+        if (n && !map.has(n)) map.set(n, n);
+      });
     }
   });
   return Array.from(map.keys());
@@ -109,14 +272,15 @@ const filteredStudents = computed(() => {
     const query = searchQuery.value.toLowerCase().trim();
 
     const matchesSearch = !query || sName.includes(query) || sEmail.includes(query);
-    const matchesClass = !selectedClass.value || cName === selectedClass.value;
+    const matchesClass = !selectedClass.value || cName === selectedClass.value || cName.includes(selectedClass.value);
 
     return matchesSearch && matchesClass;
   });
 });
 
-const getScoreColorClass = (score) => {
-  const num = parseFloat(score);
+const getScoreColorClass = (student) => {
+  if (student.completed_count === 0) return "badge-ghost bg-gray-100 text-gray-500";
+  const num = parseFloat(student.average_score);
   if (num >= 80) return "badge-success text-white";
   if (num >= 60) return "badge-warning text-white";
   return "badge-error text-white";
@@ -144,12 +308,8 @@ const getScoreColorClass = (score) => {
     <!-- Filters & Search -->
     <div class="bg-white p-4 rounded-xl shadow border border-gray-100 flex flex-col md:flex-row gap-4 justify-between">
       <div class="form-control w-full md:w-1/2">
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Cari nama atau email siswa..."
-          class="input input-bordered w-full"
-        />
+        <input v-model="searchQuery" type="text" placeholder="Cari nama atau email siswa..."
+          class="input input-bordered w-full" />
       </div>
 
       <div class="form-control w-full md:w-1/3">
@@ -198,15 +358,13 @@ const getScoreColorClass = (score) => {
               </span>
             </td>
             <td class="text-center">
-              <span class="badge font-bold px-3 py-2" :class="getScoreColorClass(student.average_score)">
+              <span class="badge font-bold px-3 py-2" :class="getScoreColorClass(student)">
                 {{ student.average_score }}%
               </span>
             </td>
             <td class="text-center">
-              <router-link
-                :to="`/admin/kuis/hasil/siswa/${student.student_id}`"
-                class="btn btn-sm btn-primary text-white"
-              >
+              <router-link :to="`/admin/kuis/hasil/siswa/${student.student_id}`"
+                class="btn btn-sm btn-primary text-white">
                 Lihat Hasil Kuis
               </router-link>
             </td>
@@ -215,7 +373,7 @@ const getScoreColorClass = (score) => {
           <!-- Empty State -->
           <tr v-if="filteredStudents.length === 0">
             <td colspan="6" class="text-center py-8 text-gray-400">
-              Belum ada data pengerjaan kuis siswa.
+              Belum ada data siswa.
             </td>
           </tr>
         </tbody>
