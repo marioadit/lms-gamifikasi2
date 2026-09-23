@@ -132,8 +132,9 @@ const logout = () => {
           :class="{
             'bg-base-300':
               isUserMenuOpen ||
+              $route.path.includes('/admin/users/guru') ||
               $route.path.includes('/admin/users/siswa') ||
-              $route.path.includes('/admin/users/guru'),
+              $route.path.includes('/admin/users/alumni'),
           }">
           <div class="flex items-center gap-2">
             <UserGroupIcon class="w-5 h-5" />
@@ -145,6 +146,14 @@ const logout = () => {
 
         <!-- Submenu -->
         <ul v-show="isUserMenuOpen" class="pl-4 mt-1 space-y-1">
+          <li v-if="userRole === 'admin'">
+            <router-link to="/admin/users/guru" class="flex items-center gap-2 p-2 rounded-md hover:bg-base-300" :class="{
+              'bg-primary text-white': $route.path.includes('/admin/users/guru'),
+            }">
+              <UserIcon class="w-4 h-4" />
+              <span>Kelola Guru</span>
+            </router-link>
+          </li>
           <li>
             <router-link to="/admin/users/siswa" class="flex items-center gap-2 p-2 rounded-md hover:bg-base-300"
               :class="{
@@ -155,11 +164,11 @@ const logout = () => {
             </router-link>
           </li>
           <li v-if="userRole === 'admin'">
-            <router-link to="/admin/users/guru" class="flex items-center gap-2 p-2 rounded-md hover:bg-base-300" :class="{
-              'bg-primary text-white': $route.path.includes('/admin/users/guru'),
+            <router-link to="/admin/users/alumni" class="flex items-center gap-2 p-2 rounded-md hover:bg-base-300" :class="{
+              'bg-primary text-white': $route.path.includes('/admin/users/alumni'),
             }">
               <UserIcon class="w-4 h-4" />
-              <span>Kelola Guru</span>
+              <span>Daftar Alumni</span>
             </router-link>
           </li>
         </ul>

@@ -19,6 +19,7 @@ import EditGuruProfilePage from "../pages/admin/users/EditGuruProfilePage.vue";
 import EditGuruPasswordPage from "../pages/admin/users/EditGuruPasswordPage.vue";
 import DetailGuruPage from "../pages/admin/users/DetailGuruPage.vue";
 import DetailUserPage from "../pages/admin/users/DetailUserPage.vue";
+import ListAlumniPage from "../pages/admin/users/ListAlumniPage.vue";
 import EditLessonsPage from "../pages/admin/EditLessonsPage.vue";
 import DetailLessonsPage from "../pages/admin/DetailLessonsPage.vue";
 import ClassLessonsPage from "../pages/admin/ClassLessonsPage.vue";
@@ -283,6 +284,13 @@ export default [
                 component: EditGuruPasswordPage,
                 beforeEnter: guardAdminOnly,
                 meta: { title: "Edit Password Guru", requiresAuth: true }
+            },
+            {
+                path: "users/alumni",
+                name: "adminListAlumni",
+                component: ListAlumniPage,
+                beforeEnter: guardAdminOnly,
+                meta: { title: "Daftar Alumni", requiresAuth: true }
             },
             {
                 path: "kuis/hasil/siswa/:studentId",

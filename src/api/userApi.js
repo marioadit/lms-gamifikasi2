@@ -66,3 +66,9 @@ export const getQuizUser = async () => {
 
     return response.data;
 }
+
+export const getAlumni = async () => {
+    const response = await axiosInstance.get('admin/alumni');
+
+    return response.data;
+}
