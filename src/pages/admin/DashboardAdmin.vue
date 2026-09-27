@@ -10,6 +10,7 @@ import {
   ArrowPathIcon,
   FunnelIcon,
   MagnifyingGlassIcon,
+  IdentificationIcon,
 } from "@heroicons/vue/24/outline";
 
 const isLoading = ref(true);
@@ -18,6 +19,7 @@ const stats = ref({
   total_admin: 0,
   total_guru: 0,
   total_siswa: 0,
+  total_alumni: 0,
   total_users: 0,
   total_classes: 0,
 });
@@ -89,7 +91,7 @@ onMounted(() => {
     <div v-if="errorMsg" class="alert alert-error shadow-lg">
       <div class="flex items-center gap-2">
         <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 9 0 0118 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <span>{{ errorMsg }}</span>
       </div>
@@ -98,8 +100,8 @@ onMounted(() => {
 
     <!-- Skeleton Loading -->
     <div v-if="isLoading" class="space-y-6">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <div v-for="i in 5" :key="i" class="h-28 bg-base-300 animate-pulse rounded-2xl"></div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div v-for="i in 6" :key="i" class="h-28 bg-base-300 animate-pulse rounded-2xl"></div>
       </div>
       <div class="h-64 bg-base-300 animate-pulse rounded-2xl"></div>
     </div>
@@ -107,7 +109,7 @@ onMounted(() => {
     <!-- Main Content -->
     <template v-else-if="!errorMsg">
       <!-- Stats Cards -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <!-- Total Admin -->
         <div class="card bg-base-100 shadow-md hover:shadow-lg transition-all border border-base-200">
           <div class="card-body p-4 flex-row items-center justify-between">
@@ -115,7 +117,7 @@ onMounted(() => {
               <p class="text-xs uppercase font-semibold text-base-content/60">Total Admin</p>
               <h2 class="text-3xl font-extrabold mt-1 text-primary">{{ stats.total_admin || 0 }}</h2>
             </div>
-            <div class="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+            <div class="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
               <ShieldCheckIcon class="w-7 h-7" />
             </div>
           </div>
@@ -128,7 +130,7 @@ onMounted(() => {
               <p class="text-xs uppercase font-semibold text-base-content/60">Total Guru</p>
               <h2 class="text-3xl font-extrabold mt-1 text-secondary">{{ stats.total_guru || 0 }}</h2>
             </div>
-            <div class="w-12 h-12 rounded-full bg-secondary/10 text-secondary flex items-center justify-center">
+            <div class="w-12 h-12 rounded-full bg-secondary/10 text-secondary flex items-center justify-center shrink-0">
               <AcademicCapIcon class="w-7 h-7" />
             </div>
           </div>
@@ -141,8 +143,21 @@ onMounted(() => {
               <p class="text-xs uppercase font-semibold text-base-content/60">Total Siswa</p>
               <h2 class="text-3xl font-extrabold mt-1 text-accent">{{ stats.total_siswa || 0 }}</h2>
             </div>
-            <div class="w-12 h-12 rounded-full bg-accent/10 text-accent flex items-center justify-center">
+            <div class="w-12 h-12 rounded-full bg-accent/10 text-accent flex items-center justify-center shrink-0">
               <UserIcon class="w-7 h-7" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Alumni -->
+        <div class="card bg-base-100 shadow-md hover:shadow-lg transition-all border border-base-200">
+          <div class="card-body p-4 flex-row items-center justify-between">
+            <div>
+              <p class="text-xs uppercase font-semibold text-base-content/60">Total Alumni</p>
+              <h2 class="text-3xl font-extrabold mt-1 text-success">{{ stats.total_alumni || 0 }}</h2>
+            </div>
+            <div class="w-12 h-12 rounded-full bg-success/10 text-success flex items-center justify-center shrink-0">
+              <IdentificationIcon class="w-7 h-7" />
             </div>
           </div>
         </div>
@@ -154,7 +169,7 @@ onMounted(() => {
               <p class="text-xs uppercase font-semibold text-base-content/60">Total Pengguna</p>
               <h2 class="text-3xl font-extrabold mt-1 text-info">{{ stats.total_users || 0 }}</h2>
             </div>
-            <div class="w-12 h-12 rounded-full bg-info/10 text-info flex items-center justify-center">
+            <div class="w-12 h-12 rounded-full bg-info/10 text-info flex items-center justify-center shrink-0">
               <UserGroupIcon class="w-7 h-7" />
             </div>
           </div>
@@ -167,7 +182,7 @@ onMounted(() => {
               <p class="text-xs uppercase font-semibold text-base-content/60">Total Kelas</p>
               <h2 class="text-3xl font-extrabold mt-1 text-warning">{{ stats.total_classes || 0 }}</h2>
             </div>
-            <div class="w-12 h-12 rounded-full bg-warning/10 text-warning flex items-center justify-center">
+            <div class="w-12 h-12 rounded-full bg-warning/10 text-warning flex items-center justify-center shrink-0">
               <BuildingOffice2Icon class="w-7 h-7" />
             </div>
           </div>

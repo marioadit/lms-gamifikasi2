@@ -25,6 +25,14 @@ const isUserMenuOpen = ref(false);
 const isQuizMenuOpen = ref(false);
 
 const userRole = computed(() => authStore.userRole || localStorage.getItem("role") || "");
+const userName = computed(() => authStore.userName || localStorage.getItem("name") || "User");
+
+const roleLabel = computed(() => {
+  if (userRole.value === "admin") return "Admin";
+  if (userRole.value === "guru") return "Guru";
+  if (userRole.value === "siswa") return "Siswa";
+  return userRole.value;
+});
 
 const toggleUserMenu = () => {
   isUserMenuOpen.value = !isUserMenuOpen.value;
@@ -213,9 +221,9 @@ const logout = () => {
             👤
           </div>
         </div>
-        <div>
-          <h3 class="font-semibold text-sm">Profil Saya ⚙️</h3>
-          <p class="text-xs text-gray-500">Edit Nama & Password</p>
+        <div class="overflow-hidden flex-1">
+          <h3 class="font-semibold text-sm truncate">{{ userName }} ⚙️</h3>
+          <p class="text-xs text-gray-500 capitalize">{{ roleLabel }}</p>
         </div>
       </router-link>
 
