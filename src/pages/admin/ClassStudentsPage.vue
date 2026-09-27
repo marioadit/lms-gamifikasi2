@@ -168,9 +168,7 @@ const goBackToDetail = () => {
           <table class="table table-zebra w-full">
             <thead>
               <tr>
-                <th width="60">
-                  <input type="checkbox" class="checkbox" v-model="selectAll" @change="toggleSelectAll" :disabled="!canManageClass" />
-                </th>
+                <th width="60"></th>
                 <th>Nama Siswa</th>
                 <th>Email</th>
                 <th>Status</th>

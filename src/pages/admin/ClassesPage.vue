@@ -225,7 +225,7 @@ const saveStudents = () => {
                 Pelajaran
               </router-link>
               <router-link
-                v-if="userRole === 'admin'"
+                v-if="userRole === 'admin' || isTaughtByMe(cls)"
                 :to="`/admin/kelas/edit/${cls.id}`"
                 class="btn btn-sm btn-warning"
               >

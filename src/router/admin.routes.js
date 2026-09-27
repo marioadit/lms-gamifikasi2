@@ -118,7 +118,6 @@ export default [
                 path: "kelas/edit/:id",
                 name: "adminEditClass",
                 component: EditClassPage,
-                beforeEnter: guardAdminOnly,
                 meta: { title: "Edit Kelas", requiresAuth: true }
             },
             {

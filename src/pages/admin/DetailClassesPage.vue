@@ -2,10 +2,15 @@
 import { computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useClassesStore } from "../../store/classesStore";
+import { useAuthStore } from "../../store/authStore";
 
 const router = useRouter();
 const route = useRoute();
 const classesStore = useClassesStore();
+const authStore = useAuthStore();
+
+const userRole = computed(() => authStore.userRole);
+const currentUserId = computed(() => authStore.currentUserId);
 
 onMounted(() => {
   const classId = route.params.id;
@@ -15,6 +20,16 @@ onMounted(() => {
 const selectedClass = computed(() => classesStore.selectedClass);
 const isLoading = computed(() => classesStore.loading);
 const errorMessage = computed(() => classesStore.error);
+
+const isTaughtByMe = computed(() => {
+  if (!selectedClass.value) return false;
+  if (userRole.value === 'admin') return true;
+  if (userRole.value === 'guru') {
+    const teacherId = Number(selectedClass.value.teacher_id || selectedClass.value.teacher?.id || 0);
+    return teacherId === currentUserId.value;
+  }
+  return false;
+});
 
 const goBack = () => {
   router.push("/admin/kelas");
@@ -40,7 +55,7 @@ const openStudentManagement = () => {
         <button @click="goBack" class="btn btn-outline">
           Kembali
         </button>
-        <button @click="openEditClass" class="btn btn-warning" v-if="selectedClass">
+        <button @click="openEditClass" class="btn btn-warning" v-if="selectedClass && isTaughtByMe">
           Edit Kelas
         </button>
       </div>

@@ -2,11 +2,16 @@
 import { ref, onMounted, computed, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useClassesStore } from "../../store/classesStore";
+import { useAuthStore } from "../../store/authStore";
 
 const classesStore = useClassesStore();
+const authStore = useAuthStore();
 const router = useRouter();
 const route = useRoute();
 const classId = ref(parseInt(route.params.id));
+
+const userRole = computed(() => authStore.userRole);
+const currentUserId = computed(() => authStore.currentUserId);
 
 // Loading state
 const isLoading = ref(true);
@@ -52,6 +57,13 @@ onMounted(async () => {
 // Watch for selectedClass changes to update form
 watch(selectedClass, (newValue) => {
   if (newValue) {
+    if (userRole.value === 'guru') {
+      const teacherId = Number(newValue.teacher_id || newValue.teacher?.id || 0);
+      if (teacherId !== currentUserId.value) {
+        router.push("/admin/kelas");
+        return;
+      }
+    }
     classFormData.value = {
       name: newValue.name,
       level: newValue.level,
