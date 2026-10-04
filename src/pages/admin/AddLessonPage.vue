@@ -1,12 +1,13 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
-import { useRouter } from "vue-router";
+import { ref, onMounted, computed, watch } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import { useLessonsStore } from "../../store/lessonsStore";
 import { useClassesStore } from "../../store/classesStore";
 import { useAuthStore } from "../../store/authStore";
 import Swal from "sweetalert2";
 
 const router = useRouter();
+const route = useRoute();
 const lessonsStore = useLessonsStore();
 const classesStore = useClassesStore();
 const authStore = useAuthStore();
@@ -30,16 +31,56 @@ const formData = ref({
 // Preview URL for thumbnail
 const thumbnailPreview = ref("");
 
-// Get classes for dropdown
-onMounted(async () => {
-  await classesStore.getClasses();
-});
-
 const classes = computed(() => {
   if (userRole.value === 'guru') {
     return classesStore.classes.filter(cls => Number(cls.teacher_id || cls.teacher?.id || 0) === currentUserId.value);
   }
   return classesStore.classes;
+});
+
+const setClassFromRouteOrRole = () => {
+  const queryClassId = route.query.class_id || route.query.classId || route.query.id || route.params.id || route.params.class_id;
+  const availClasses = classes.value || [];
+
+  if (queryClassId) {
+    const targetIdNum = Number(queryClassId);
+    const foundClass = availClasses.find(c => Number(c.id) === targetIdNum);
+    if (foundClass) {
+      formData.value.class_id = foundClass.id;
+      return;
+    } else {
+      formData.value.class_id = targetIdNum;
+      return;
+    }
+  }
+
+  if (availClasses.length === 1 && !formData.value.class_id) {
+    formData.value.class_id = availClasses[0].id;
+  }
+};
+
+watch(
+  () => classes.value,
+  (newClasses) => {
+    if (newClasses && newClasses.length > 0) {
+      setClassFromRouteOrRole();
+    }
+  },
+  { immediate: true, deep: true }
+);
+
+watch(
+  () => route.fullPath,
+  () => {
+    setClassFromRouteOrRole();
+  },
+  { immediate: true }
+);
+
+// Get classes for dropdown
+onMounted(async () => {
+  await classesStore.getClasses();
+  setClassFromRouteOrRole();
 });
 
 // Handle file upload
@@ -109,7 +150,12 @@ const handleSubmit = async () => {
       confirmButtonText: "OK",
     }).then((result) => {
       if (result.isConfirmed) {
-        router.push("/admin/pelajaran");
+        const queryClassId = route.query.class_id || route.query.classId;
+        if (queryClassId) {
+          router.push(`/admin/kelas/${queryClassId}/pelajaran`);
+        } else {
+          router.push("/admin/pelajaran");
+        }
       }
     });
   } catch (error) {
@@ -124,7 +170,12 @@ const handleSubmit = async () => {
 };
 
 const cancelAdd = () => {
-  router.push("/admin/pelajaran");
+  const queryClassId = route.query.class_id || route.query.classId;
+  if (queryClassId) {
+    router.push(`/admin/kelas/${queryClassId}/pelajaran`);
+  } else {
+    router.push("/admin/pelajaran");
+  }
 };
 </script>
 

@@ -60,19 +60,50 @@ const quizFormData = ref({
   is_active: 0,
 });
 
+const setLessonFromRoute = () => {
+  const queryLessonId = route.query.lesson_id || route.query.lessonId || route.query.id || route.params.id || route.params.lesson_id;
+  if (!queryLessonId) return;
+
+  const targetIdNum = Number(queryLessonId);
+  const foundLesson = (lessonsStore.lessons || []).find(l => Number(l.id) === targetIdNum);
+  
+  if (foundLesson) {
+    quizFormData.value.lesson_id = foundLesson.id;
+  } else {
+    quizFormData.value.lesson_id = targetIdNum;
+  }
+};
+
 watch(canToggleActive, (canToggle) => {
   if (!canToggle) {
     quizFormData.value.is_active = 0;
+  } else {
+    quizFormData.value.is_active = 1;
   }
 }, { immediate: true });
+
+watch(
+  () => lessons.value,
+  (newLessons) => {
+    if (newLessons && newLessons.length > 0) {
+      setLessonFromRoute();
+    }
+  },
+  { immediate: true, deep: true }
+);
+
+watch(
+  () => route.fullPath,
+  () => {
+    setLessonFromRoute();
+  },
+  { immediate: true }
+);
 
 onMounted(async () => {
   await classesStore.getClasses().catch(() => null);
   await loadLessons();
-  const queryLessonId = route.query.lesson_id || route.params.id;
-  if (queryLessonId) {
-    quizFormData.value.lesson_id = parseInt(queryLessonId);
-  }
+  setLessonFromRoute();
   if (canToggleActive.value) {
     quizFormData.value.is_active = 1;
   }
@@ -106,7 +137,12 @@ const handleSubmit = async () => {
       title: "Kuis berhasil ditambahkan",
     });
 
-    router.push("/admin/kuis");
+    const queryLessonId = route.query.lesson_id || route.query.lessonId;
+    if (queryLessonId) {
+      router.push(`/admin/pelajaran/${queryLessonId}/kuis`);
+    } else {
+      router.push("/admin/kuis");
+    }
   } catch (error) {
     errorMessage.value = error.message;
   } finally {
@@ -115,7 +151,12 @@ const handleSubmit = async () => {
 };
 
 const cancelAdd = () => {
-  router.push("/admin/kuis");
+  const queryLessonId = route.query.lesson_id || route.query.lessonId;
+  if (queryLessonId) {
+    router.push(`/admin/pelajaran/${queryLessonId}/kuis`);
+  } else {
+    router.push("/admin/kuis");
+  }
 };
 </script>
 
