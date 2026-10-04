@@ -31,12 +31,38 @@ export const useQuestionsStore = defineStore("questions", {
 
             try {
                 const response = await getQuestionByIdAPI(id);
-                this.question = response.data;
+                let questionData = response.data || {};
+
+                try {
+                    const relationResponse = await getQuestionsByIdAPI(id);
+                    if (relationResponse && relationResponse.data) {
+                        const relData = relationResponse.data;
+                        if (relData.essayAnswers) questionData.essayAnswers = relData.essayAnswers;
+                        if (relData.essay_answers) questionData.essay_answers = relData.essay_answers;
+                        if (relData.options && (!questionData.options || questionData.options.length === 0)) {
+                            questionData.options = relData.options;
+                        }
+                        if (relData.matchPairs && (!questionData.match_pairs || questionData.match_pairs.length === 0)) {
+                            questionData.match_pairs = relData.matchPairs;
+                        }
+                        if (relData.option_text && !questionData.option_text) {
+                            questionData.option_text = relData.option_text;
+                        }
+                    }
+                } catch (relErr) {
+                    console.warn("Could not fetch question relation data", relErr);
+                }
+
+                this.question = questionData;
             } catch (error) {
                 this.error = error.message;
             } finally {
                 this.loading = false;
             }
+        },
+
+        async updateQuestion(id, formData) {
+            return this.updateQuestions(id, formData);
         },
         
         async createQuestions(data) {

@@ -117,6 +117,20 @@ const formatDate = (dateString) => {
     minute: '2-digit'
   });
 };
+
+const getAnswerKeys = (q) => {
+  if (!q) return [];
+  if (Array.isArray(q.essay_answers) && q.essay_answers.length > 0) {
+    return q.essay_answers.map(a => a.option_text).filter(Boolean);
+  }
+  if (Array.isArray(q.essayAnswers) && q.essayAnswers.length > 0) {
+    return q.essayAnswers.map(a => a.option_text).filter(Boolean);
+  }
+  if (q.option_text) {
+    return q.option_text.split('|').map(k => k.trim()).filter(Boolean);
+  }
+  return [];
+};
 </script>
 
 <template>
@@ -321,6 +335,27 @@ const formatDate = (dateString) => {
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              <!-- Essay & Guess Image Answer Keys Section -->
+              <div v-if="['essay', 'guess_image'].includes(questionDetails[question.id].type)" class="space-y-4">
+                <h3 class="text-lg font-semibold flex items-center gap-2">
+                  <span>🔑</span> Kunci Jawaban / Kata Kunci
+                </h3>
+                <div v-if="getAnswerKeys(questionDetails[question.id]).length > 0" class="flex flex-wrap gap-2">
+                  <span
+                    v-for="(key, idx) in getAnswerKeys(questionDetails[question.id])"
+                    :key="idx"
+                    class="badge badge-lg bg-amber-100 text-amber-900 border-amber-300 font-medium px-4 py-3 text-sm flex items-center gap-1.5"
+                  >
+                    <span>🔑</span>
+                    <span>Kata Kunci #{{ idx + 1 }}:</span>
+                    <strong class="font-bold">{{ key }}</strong>
+                  </span>
+                </div>
+                <div v-else class="p-4 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 italic text-sm">
+                  Belum ada kata kunci jawaban yang ditambahkan.
                 </div>
               </div>
 

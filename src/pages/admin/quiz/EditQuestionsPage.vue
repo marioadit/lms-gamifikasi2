@@ -77,8 +77,12 @@ const addAnswerKey = () => {
 };
 
 const removeAnswerKey = (keyIndex) => {
-  if (Array.isArray(question.value.answer_keys) && question.value.answer_keys.length > 1) {
-    question.value.answer_keys.splice(keyIndex, 1);
+  if (Array.isArray(question.value.answer_keys)) {
+    if (question.value.answer_keys.length > 1) {
+      question.value.answer_keys.splice(keyIndex, 1);
+    } else {
+      question.value.answer_keys[0] = '';
+    }
   }
 };
 
@@ -468,11 +472,10 @@ const goBack = () => {
               required
             />
             <button 
-              v-if="question.answer_keys.length > 1"
               type="button"
               @click="() => removeAnswerKey(keyIndex)"
               class="btn btn-error btn-square btn-sm text-white shrink-0"
-              title="Hapus Kata Kunci"
+              title="Hapus / Kosongkan Kata Kunci"
             >
               🗑️
             </button>
