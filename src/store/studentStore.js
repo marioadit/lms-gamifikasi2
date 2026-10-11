@@ -151,6 +151,76 @@ export const useStudentStore = defineStore("student", {
             }
         },
 
+        async promoteStudentsBatch(targetClassId, studentIds, currentClassId) {
+            this.loading = true;
+            this.error = null;
+            this.success = null;
+            try {
+                for (const studentId of studentIds) {
+                    await enrollStudent(targetClassId, studentId);
+                }
+                this.success = `Berhasil menaikkan ${studentIds.length} siswa ke kelas baru`;
+                if (currentClassId) {
+                    await this.getClassStudents(currentClassId);
+                }
+                await this.getUserStudent();
+                return true;
+            } catch (error) {
+                console.error("Error promoting students batch:", error);
+                this.error = error.response?.data?.message || error.message || "Gagal menaikkan kelas siswa";
+                return false;
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async changeStudentsStatusBatch(classId, students, newStatus) {
+            this.loading = true;
+            this.error = null;
+            this.success = null;
+            try {
+                for (const student of students) {
+                    // 1. Delete siswa dari kelas dahulu
+                    await removeStudentFromClass(classId, student.id);
+                    // 2. Baru update user profile status
+                    await updateUserProfile(student.id, {
+                        name: student.name,
+                        email: student.email,
+                        status: newStatus
+                    });
+                }
+                this.success = `Berhasil mengeluarkan ${students.length} siswa dari kelas dan mengubah status menjadi ${newStatus === 'lulus' ? 'Lulus' : 'Pindah'}`;
+                await this.getClassStudents(classId);
+                await this.getUserStudent();
+                return true;
+            } catch (error) {
+                console.error("Error updating students status batch:", error);
+                this.error = error.response?.data?.message || error.message || "Gagal mengubah status siswa";
+                return false;
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async removeSingleStudentFromClass(classId, studentId) {
+            this.loading = true;
+            this.error = null;
+            this.success = null;
+            try {
+                await removeStudentFromClass(classId, studentId);
+                this.success = "Siswa berhasil dikeluarkan dari kelas";
+                await this.getClassStudents(classId);
+                await this.getUserStudent();
+                return true;
+            } catch (error) {
+                console.error("Error removing student from class:", error);
+                this.error = error.response?.data?.message || error.message || "Gagal mengeluarkan siswa dari kelas";
+                return false;
+            } finally {
+                this.loading = false;
+            }
+        },
+
         async getStudentById(id) {
             this.loading = true;
             this.error = null;
