@@ -295,9 +295,14 @@ const getScoreColorClass = (student) => {
         <h1 class="text-2xl font-bold text-gray-800">Hasil Kuis Siswa 📊</h1>
         <p class="text-gray-500">Ringkasan hasil kuis per siswa</p>
       </div>
-      <button @click="loadData" class="btn btn-outline btn-sm">
-        🔄 Refresh Data
-      </button>
+      <div class="flex items-center gap-2">
+        <router-link to="/admin/rekap-nilai" class="btn btn-primary btn-sm shadow text-white">
+          <span>📊</span> Rekap Nilai Siswa
+        </router-link>
+        <button @click="loadData" class="btn btn-outline btn-sm">
+          🔄 Refresh Data
+        </button>
+      </div>
     </div>
 
     <!-- Error Alert -->

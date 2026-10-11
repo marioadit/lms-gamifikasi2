@@ -140,9 +140,14 @@ const handleDeleteStudent = async () => {
         <h1 class="text-2xl font-bold text-gray-800">Kelola Siswa</h1>
         <p class="text-gray-500">Kelola daftar siswa yang terdaftar di sistem</p>
       </div>
-      <router-link to="/admin/users/tambah" class="btn btn-primary shadow">
-        <span class="mr-1">➕</span> Tambah Siswa Baru
-      </router-link>
+      <div class="flex items-center gap-2">
+        <router-link to="/admin/rekap-nilai" class="btn btn-outline btn-primary shadow">
+          <span>📊</span> Rekap Nilai Siswa
+        </router-link>
+        <router-link to="/admin/users/tambah" class="btn btn-primary shadow">
+          <span class="mr-1">➕</span> Tambah Siswa Baru
+        </router-link>
+      </div>
     </div>
 
     <!-- Feedback Alerts -->

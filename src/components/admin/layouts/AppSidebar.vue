@@ -16,6 +16,7 @@ import {
   ArrowRightOnRectangleIcon,
   ChevronDownIcon,
   ChevronUpIcon,
+  TableCellsIcon,
 } from "@heroicons/vue/24/outline";
 import Swal from "sweetalert2";
 
@@ -103,7 +104,7 @@ const logout = () => {
         <div @click="toggleQuizMenu" class="flex items-center justify-between p-3 hover:bg-base-300 cursor-pointer"
           :class="{
             'bg-base-300':
-              isQuizMenuOpen || $route.path.includes('/admin/kuis'),
+              isQuizMenuOpen || $route.path.includes('/admin/kuis') || $route.path.includes('/admin/rekap-nilai'),
           }">
           <div class="flex items-center gap-2">
             <PencilSquareIcon class="w-5 h-5" />
@@ -129,6 +130,14 @@ const logout = () => {
             }">
               <UserIcon class="w-4 h-4" />
               <span>Hasil Kuis</span>
+            </router-link>
+          </li>
+          <li>
+            <router-link to="/admin/rekap-nilai" class="flex items-center gap-2 p-2 rounded-md hover:bg-base-300" :class="{
+              'bg-primary text-white': $route.path.includes('/admin/rekap-nilai'),
+            }">
+              <TableCellsIcon class="w-4 h-4" />
+              <span>Rekap Nilai Siswa</span>
             </router-link>
           </li>
         </ul>

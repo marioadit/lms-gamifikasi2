@@ -36,6 +36,7 @@ import ResultQuizPage from "../pages/admin/quiz/ResultQuizPage.vue";
 import DetailUserQuiz from "../pages/admin/quiz/DetailUserQuiz.vue";
 import DetailQuizResultPage from "../pages/admin/quiz/DetailQuizResultPage.vue";
 import AdminProfilePage from "../pages/admin/profile/AdminProfilePage.vue";
+import StudentScoreRecapPage from "../pages/admin/StudentScoreRecapPage.vue";
 
 const guardAdminOnly = (to, from, next) => {
     const role = localStorage.getItem("role");
@@ -217,6 +218,12 @@ export default [
                 name: "adminAnswerHistoryDetail",
                 component: DetailQuizResultPage,
                 meta: { title: "Detail Hasil Kuis Siswa", requiresAuth: true }
+            },
+            {
+                path: "rekap-nilai",
+                name: "adminStudentScoreRecap",
+                component: StudentScoreRecapPage,
+                meta: { title: "Rekap Nilai Siswa", requiresAuth: true }
             },
 
             {
