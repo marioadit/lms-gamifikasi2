@@ -204,6 +204,13 @@ const formatDate = (dateString) => {
               <!-- Per Quiz Actions -->
               <div class="flex gap-2 flex-wrap justify-end">
                 <router-link 
+                  :to="`/admin/kuis/${quiz.id}`"
+                  class="btn btn-sm btn-primary text-white"
+                >
+                  👁️ Detail
+                </router-link>
+
+                <router-link 
                   :to="`/admin/kuis/${quiz.id}/pertanyaan`"
                   class="btn btn-sm btn-info text-white"
                 >

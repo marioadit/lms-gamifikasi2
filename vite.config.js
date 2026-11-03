@@ -7,7 +7,8 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5173,
-    allowedHosts: ['lms.sinaumatika.id'],
+    allowedHosts: true,
+    // allowedHosts: ['lms.sinaumatika.id'],
   }
 
 })
