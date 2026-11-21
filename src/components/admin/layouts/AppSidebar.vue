@@ -35,6 +35,12 @@ const roleLabel = computed(() => {
   return userRole.value;
 });
 
+const roleAvatar = computed(() => {
+  if (userRole.value === "guru") return "👨‍🏫";
+  if (userRole.value === "admin") return "👨‍💼";
+  return "👤";
+});
+
 const toggleUserMenu = () => {
   isUserMenuOpen.value = !isUserMenuOpen.value;
 };
@@ -50,10 +56,11 @@ const logout = () => {
     showCancelButton: true,
     confirmButtonColor: "#3085d6",
     cancelButtonColor: "#d33",
-  }).then((result) => {
+    confirmButtonText: "Ya, Keluar",
+    cancelButtonText: "Batal",
+  }).then(async (result) => {
     if (result.isConfirmed) {
-      authStore.clearUserData();
-      authStore.clearLocalStorage();
+      await authStore.logout();
       window.location.href = "/login";
     }
   });
@@ -133,9 +140,10 @@ const logout = () => {
             </router-link>
           </li>
           <li>
-            <router-link to="/admin/rekap-nilai" class="flex items-center gap-2 p-2 rounded-md hover:bg-base-300" :class="{
-              'bg-primary text-white': $route.path.includes('/admin/rekap-nilai'),
-            }">
+            <router-link to="/admin/rekap-nilai" class="flex items-center gap-2 p-2 rounded-md hover:bg-base-300"
+              :class="{
+                'bg-primary text-white': $route.path.includes('/admin/rekap-nilai'),
+              }">
               <TableCellsIcon class="w-4 h-4" />
               <span>Rekap Nilai Siswa</span>
             </router-link>
@@ -181,9 +189,10 @@ const logout = () => {
             </router-link>
           </li>
           <li v-if="userRole === 'admin'">
-            <router-link to="/admin/users/alumni" class="flex items-center gap-2 p-2 rounded-md hover:bg-base-300" :class="{
-              'bg-primary text-white': $route.path.includes('/admin/users/alumni'),
-            }">
+            <router-link to="/admin/users/alumni" class="flex items-center gap-2 p-2 rounded-md hover:bg-base-300"
+              :class="{
+                'bg-primary text-white': $route.path.includes('/admin/users/alumni'),
+              }">
               <UserIcon class="w-4 h-4" />
               <span>Daftar Alumni</span>
             </router-link>
@@ -225,10 +234,9 @@ const logout = () => {
       <router-link to="/admin/profile"
         class="p-3 flex items-center gap-3 hover:bg-base-300 rounded-xl cursor-pointer transition-colors"
         :class="{ 'bg-base-300 font-bold': $route.path === '/admin/profile' }">
-        <div class="avatar">
-          <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg">
-            👤
-          </div>
+        <div
+          class="w-10 h-10 rounded-full bg-blue-600 text-white grid place-items-center text-xl shrink-0 shadow-sm transition-transform">
+          <span>{{ roleAvatar }}</span>
         </div>
         <div class="overflow-hidden flex-1">
           <h3 class="font-semibold text-sm truncate">{{ userName }} ⚙️</h3>

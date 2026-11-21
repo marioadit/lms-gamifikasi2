@@ -2,18 +2,27 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../../../store/authStore";
+import { ArrowRightOnRectangleIcon } from "@heroicons/vue/24/outline";
+import Swal from "sweetalert2";
 
 const authStore = useAuthStore();
 const router = useRouter();
-const notificationCount = ref(3);
 
 const handleLogout = () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("role");
-  router.push("/login");
-};
-const goToHomePage = () => {
-  router.push("/");
+  Swal.fire({
+    title: "Apakah Anda yakin ingin keluar?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Ya, Keluar",
+    cancelButtonText: "Batal",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      await authStore.logout();
+      window.location.href = "/login";
+    }
+  });
 };
 </script>
 
@@ -23,15 +32,11 @@ const goToHomePage = () => {
       <h2 class="text-2xl font-bold">Selamat Datang, {{ authStore.name }}!</h2>
     </div>
     <div class="flex items-center gap-4">
-      <!-- Home Link -->
-      <button @click="goToHomePage" class="btn btn-ghost btn-sm">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-        </svg>
-        <span class="ml-1">Beranda</span>
+      <!-- Logout Button -->
+      <button @click="handleLogout" class="btn btn-ghost btn-sm text-error hover:bg-error/10 flex items-center gap-1.5 font-semibold">
+        <ArrowRightOnRectangleIcon class="w-5 h-5" />
+        <span>Log out</span>
       </button>
-
     </div>
   </div>
 </template>
