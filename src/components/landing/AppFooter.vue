@@ -8,11 +8,7 @@
         <div>
           <!-- Footer Logo with CSS filter -->
           <div class="flex items-center space-x-2 mb-4">
-            <img
-              src="../../assets/images/sm.png"
-              alt="Logo"
-              class="w-8 h-8 brightness-0 invert"
-            />
+            <img src="../../assets/images/sm.png" alt="Logo" class="w-8 h-8 brightness-0 invert" />
             <span class="text-lg font-bold">Sinau Matika</span>
           </div>
           <p class="text-sm opacity-80">
@@ -28,14 +24,10 @@
               <router-link to="/" class="hover:underline">Beranda</router-link>
             </li>
             <li>
-              <router-link to="/tentangkami" class="hover:underline"
-                >Tentang Kami</router-link
-              >
+              <router-link to="/tentangkami" class="hover:underline">Tentang Kami</router-link>
             </li>
             <li>
-              <router-link to="/layanan" class="hover:underline"
-                >Layanan</router-link
-              >
+              <router-link to="/layanan" class="hover:underline">Layanan</router-link>
             </li>
             <!-- <li><router-link to="/kontak" class="hover:underline">Kontak</router-link></li> -->
           </ul>
@@ -64,10 +56,8 @@
         </div>
       </div>
 
-      <div
-        class="border-t border-neutral-focus mt-8 pt-8 text-center text-sm opacity-80"
-      >
-        <p>© 2023 Sinau Matika. Hak Cipta Dilindungi.</p>
+      <div class="border-t border-neutral-focus mt-8 pt-8 text-center text-sm opacity-80">
+        <p>© 2025 Sinaumatika. Hak Cipta Dilindungi.</p>
       </div>
     </div>
   </footer>

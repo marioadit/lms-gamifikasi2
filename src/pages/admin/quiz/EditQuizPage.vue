@@ -111,10 +111,10 @@ const handleSubmit = async () => {
     });
     Toast.fire({
       icon: "success",
-      title: "Kuis berhasil ditambahkan",
+      title: "Kuis berhasil diperbarui",
     });
 
-    router.push("/admin/kuis");
+    router.push(`/admin/kuis/${quizId}`);
   } catch (error) {
     errorMessage.value = error.message;
   } finally {
@@ -123,7 +123,7 @@ const handleSubmit = async () => {
 };
 
 const cancelEdit = () => {
-  router.push("/admin/kuis");
+  router.push(`/admin/kuis/${quizId}`);
 };
 </script>
 
@@ -137,7 +137,7 @@ const cancelEdit = () => {
         </p>
       </div>
       <button @click="cancelEdit" class="btn btn-outline">
-        Kembali ke Daftar
+        Kembali
       </button>
     </div>
 

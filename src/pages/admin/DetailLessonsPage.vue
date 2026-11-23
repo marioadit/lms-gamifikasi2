@@ -130,27 +130,19 @@ onMounted(async () => {
           <div class="border-t border-gray-100 pt-6 space-y-4">
             <div class="flex justify-between items-center">
               <h3 class="text-lg font-bold text-gray-800">Daftar Kuis ({{ lessonQuizzes.length }})</h3>
-              <router-link 
-                :to="`/admin/kuis/tambah?lesson_id=${lesson.id}`" 
-                class="btn btn-primary btn-sm text-white"
-              >
+              <router-link :to="`/admin/kuis/tambah?lesson_id=${lesson.id}`" class="btn btn-primary btn-sm text-white">
                 ➕ Tambah Kuis Baru
               </router-link>
             </div>
 
             <div v-if="lessonQuizzes.length > 0" class="space-y-3">
-              <div 
-                v-for="quiz in lessonQuizzes" 
-                :key="quiz.id"
-                class="bg-gray-50 p-4 rounded-xl border border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3"
-              >
+              <div v-for="quiz in lessonQuizzes" :key="quiz.id"
+                class="bg-gray-50 p-4 rounded-xl border border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                 <div>
                   <div class="flex items-center gap-2">
                     <h4 class="font-bold text-gray-800 text-base">{{ quiz.title }}</h4>
-                    <span 
-                      :class="quiz.is_active ? 'badge-success text-white' : 'badge-ghost text-gray-400'"
-                      class="badge badge-sm font-semibold"
-                    >
+                    <span :class="quiz.is_active ? 'badge-success text-white' : 'badge-ghost text-gray-400'"
+                      class="badge badge-sm font-semibold">
                       {{ quiz.is_active ? 'Aktif' : 'Tidak Aktif' }}
                     </span>
                   </div>
@@ -158,17 +150,9 @@ onMounted(async () => {
                 </div>
 
                 <div class="flex gap-2 flex-wrap">
-                  <router-link 
-                    :to="`/admin/kuis/${quiz.id}/pertanyaan`" 
-                    class="btn btn-xs btn-info text-white"
-                  >
-                    ❓ Soal
-                  </router-link>
-
-                  <router-link 
-                    :to="`/admin/kuis/${quiz.id}/edit`" 
-                    class="btn btn-xs btn-warning text-white"
-                  >
+                  :to="`/admin/kuis/${quiz.id}`" class="btn btn-xs btn-primary text-white">
+                  👁️ Detail
+                  <router-link :to="`/admin/kuis/${quiz.id}/edit`" class="btn btn-xs btn-warning text-white">
                     ✏️ Edit
                   </router-link>
                 </div>
@@ -177,7 +161,8 @@ onMounted(async () => {
 
             <div v-else class="text-center py-8 bg-gray-50 rounded-xl border border-gray-200">
               <p class="text-gray-500 text-sm">Belum ada kuis untuk pelajaran ini</p>
-              <router-link :to="`/admin/kuis/tambah?lesson_id=${lesson.id}`" class="btn btn-primary btn-sm text-white mt-3">
+              <router-link :to="`/admin/kuis/tambah?lesson_id=${lesson.id}`"
+                class="btn btn-primary btn-sm text-white mt-3">
                 ➕ Tambah Kuis Pertama
               </router-link>
             </div>

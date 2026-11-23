@@ -334,7 +334,7 @@ const handleSubmit = async () => {
       showConfirmButton: false,
     });
 
-    router.push(`/admin/kuis/${quizId.value}/pertanyaan`);
+    router.push(`/admin/kuis/${quizId.value}`);
   } catch (err) {
     console.error('Form submission error:', err);
     error.value = err.response?.data?.message || err.message || 'Gagal memperbarui pertanyaan';
@@ -344,7 +344,7 @@ const handleSubmit = async () => {
 };
 
 const goBack = () => {
-  router.push(`/admin/kuis/${quizId.value}/pertanyaan`);
+  router.push(`/admin/kuis/${quizId.value}`);
 };
 </script>
 

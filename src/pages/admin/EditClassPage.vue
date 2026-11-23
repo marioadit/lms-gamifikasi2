@@ -128,7 +128,7 @@ const saveClass = async () => {
     // Wait 1.5 seconds, then refresh data and navigate back
     setTimeout(() => {
       classesStore.getClasses();
-      router.push("/admin/kelas");
+      router.push(`/admin/kelas/${classId.value}`);
     }, 1500);
   } catch (error) {
     console.error("Error updating class:", error);
@@ -138,9 +138,9 @@ const saveClass = async () => {
   }
 };
 
-// Batalkan dan kembali ke daftar kelas
+// Batalkan dan kembali ke detail kelas
 const cancelEdit = () => {
-  router.push("/admin/kelas");
+  router.push(`/admin/kelas/${classId.value}`);
 };
 </script>
 
@@ -155,7 +155,7 @@ const cancelEdit = () => {
         </p>
       </div>
       <button @click="cancelEdit" class="btn btn-outline">
-        Kembali ke Daftar
+        Kembali
       </button>
     </div>
 

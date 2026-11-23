@@ -193,7 +193,7 @@ const handleSubmit = async () => {
       name: form.value.name,
       email: form.value.email
     });
-    router.push("/admin/users/guru");
+    router.push(`/admin/users/guru/${teacherId}`);
   } catch (err) {
     errorMessage.value = typeof err === "string" ? err : (err?.response?.data?.message || err?.message || "Gagal memperbarui profil guru");
   } finally {
@@ -202,7 +202,7 @@ const handleSubmit = async () => {
 };
 
 const handleCancel = () => {
-  router.push("/admin/users/guru");
+  router.push(`/admin/users/guru/${teacherId}`);
 };
 </script>
 

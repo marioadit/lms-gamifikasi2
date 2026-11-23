@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuizStore } from '../../../store/quizStore';
+import Swal from 'sweetalert2';
 
 const route = useRoute();
 const router = useRouter();
@@ -186,7 +187,16 @@ const handleSubmit = async () => {
     });
 
     await Promise.all(questionsData.map(formData => quizStore.createQuestion(formData)));
-    router.push(`/admin/kuis/${quizId.value}/pertanyaan`);
+    
+    await Swal.fire({
+      icon: 'success',
+      title: 'Berhasil!',
+      text: 'Pertanyaan berhasil disimpan',
+      timer: 1500,
+      showConfirmButton: false,
+    });
+
+    router.push(`/admin/kuis/${quizId.value}`);
   } catch (err) {
     console.error('Form submission error:', err);
     error.value = err.response?.data?.message || err.message || 'Gagal menambahkan pertanyaan';
@@ -196,7 +206,7 @@ const handleSubmit = async () => {
 };
 
 const goBack = () => {
-  router.push(`/admin/kuis/${quizId.value}/pertanyaan`);
+  router.push(`/admin/kuis/${quizId.value}`);
 };
 </script>
 

@@ -257,13 +257,6 @@ const deleteQuiz = async (id) => {
                 </router-link>
 
                 <router-link
-                  :to="`/admin/kuis/${quiz.id}/pertanyaan`"
-                  class="btn btn-xs btn-info text-white"
-                >
-                  Soal
-                </router-link>
-
-                <router-link
                   :to="`/admin/kuis/${quiz.id}/edit`"
                   class="btn btn-xs btn-warning text-white"
                 >

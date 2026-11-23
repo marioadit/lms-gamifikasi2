@@ -55,7 +55,7 @@ const handleSubmit = async () => {
       name: form.value.name,
       email: form.value.email
     });
-    router.push("/admin/users/siswa");
+    router.push(`/admin/users/${studentId}`);
   } catch (err) {
     errorMessage.value = typeof err === "string" ? err : (err?.response?.data?.message || err?.message || "Gagal memperbarui profil siswa");
   } finally {
@@ -64,7 +64,7 @@ const handleSubmit = async () => {
 };
 
 const handleCancel = () => {
-  router.push("/admin/users/siswa");
+  router.push(`/admin/users/${studentId}`);
 };
 </script>
 

@@ -297,40 +297,26 @@ onMounted(loadData);
 
     <!-- Header Banner -->
     <div
-      class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden"
-    >
+      class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
       <!-- Background subtle decorative pattern -->
-      <div
-        class="absolute -right-10 -bottom-10 w-56 h-56 bg-primary/5 rounded-full pointer-events-none blur-2xl"
-      ></div>
-      <div
-        class="absolute -left-10 -top-10 w-44 h-44 bg-purple-500/5 rounded-full pointer-events-none blur-2xl"
-      ></div>
+      <div class="absolute -right-10 -bottom-10 w-56 h-56 bg-primary/5 rounded-full pointer-events-none blur-2xl"></div>
+      <div class="absolute -left-10 -top-10 w-44 h-44 bg-purple-500/5 rounded-full pointer-events-none blur-2xl"></div>
 
       <div class="relative z-10 space-y-2">
         <div class="flex flex-wrap items-center gap-3">
-          <span
-            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
-            :class="quizScheduleStatus.badgeClass"
-          >
-            <span
-              class="w-2 h-2 rounded-full"
-              :class="quizScheduleStatus.dotClass"
-            ></span>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
+            :class="quizScheduleStatus.badgeClass">
+            <span class="w-2 h-2 rounded-full" :class="quizScheduleStatus.dotClass"></span>
             {{ quizScheduleStatus.text }}
           </span>
 
-          <span
-            v-if="selectedLesson"
-            class="px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100 flex items-center gap-1"
-          >
+          <span v-if="selectedLesson"
+            class="px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100 flex items-center gap-1">
             📚 {{ selectedLesson.title }}
           </span>
 
-          <span
-            v-if="selectedLesson?.class?.name"
-            class="px-3 py-1 rounded-full text-xs font-medium bg-purple-50 text-purple-700 border border-purple-100"
-          >
+          <span v-if="selectedLesson?.class?.name"
+            class="px-3 py-1 rounded-full text-xs font-medium bg-purple-50 text-purple-700 border border-purple-100">
             🏫 {{ selectedLesson.class.name }}
           </span>
         </div>
@@ -347,65 +333,30 @@ onMounted(loadData);
 
       <!-- Action Buttons -->
       <div class="relative z-10 flex flex-wrap items-center gap-2 sm:gap-3 shrink-0">
-        <button
-          @click="goBack"
-          class="btn btn-outline btn-sm sm:btn-md rounded-xl text-gray-700 hover:bg-gray-100 border-gray-300"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4 mr-1"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M10 19l-7-7m0 0l7-7m-7 7h18"
-            />
+        <button @click="goBack"
+          class="btn btn-outline btn-sm sm:btn-md rounded-xl text-gray-700 hover:bg-gray-100 border-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
           Kembali
         </button>
 
-        <router-link
-          :to="`/admin/kuis/${quizId}/edit`"
-          class="btn btn-warning btn-sm sm:btn-md rounded-xl text-white shadow-sm hover:shadow"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4 mr-1"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-            />
+        <router-link :to="`/admin/kuis/${quizId}/edit`"
+          class="btn btn-warning btn-sm sm:btn-md rounded-xl text-white shadow-sm hover:shadow">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
           </svg>
           Edit Kuis
         </router-link>
 
-        <router-link
-          :to="`/admin/kuis/${quizId}/pertanyaan/tambah`"
-          class="btn btn-primary btn-sm sm:btn-md rounded-xl text-white shadow-sm hover:shadow"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4 mr-1"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 4v16m8-8H4"
-            />
+        <router-link :to="`/admin/kuis/${quizId}/pertanyaan/tambah`"
+          class="btn btn-primary btn-sm sm:btn-md rounded-xl text-white shadow-sm hover:shadow">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg>
           Tambah Soal
         </router-link>
@@ -413,27 +364,20 @@ onMounted(loadData);
     </div>
 
     <!-- Loading State -->
-    <div
-      v-if="isLoading"
-      class="bg-white rounded-3xl p-12 text-center shadow-sm border border-gray-100 flex flex-col items-center justify-center space-y-4"
-    >
+    <div v-if="isLoading"
+      class="bg-white rounded-3xl p-12 text-center shadow-sm border border-gray-100 flex flex-col items-center justify-center space-y-4">
       <div class="loading loading-spinner loading-lg text-primary"></div>
       <p class="text-gray-500 font-medium">Memuat data kuis & daftar pertanyaan...</p>
     </div>
 
     <!-- Error State -->
-    <div
-      v-else-if="errorMessage"
-      class="bg-red-50 border border-red-200 text-red-800 p-6 rounded-3xl shadow-sm flex items-start gap-4"
-    >
+    <div v-else-if="errorMessage"
+      class="bg-red-50 border border-red-200 text-red-800 p-6 rounded-3xl shadow-sm flex items-start gap-4">
       <div class="text-2xl">⚠️</div>
       <div class="space-y-1">
         <h3 class="font-bold">Terjadi Kesalahan</h3>
         <p class="text-sm text-red-700">{{ errorMessage }}</p>
-        <button
-          @click="loadData"
-          class="btn btn-xs btn-outline btn-error mt-2 rounded-lg"
-        >
+        <button @click="loadData" class="btn btn-xs btn-outline btn-error mt-2 rounded-lg">
           Coba Lagi
         </button>
       </div>
@@ -445,11 +389,9 @@ onMounted(loadData);
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <!-- Stat 1: Total Soal -->
         <div
-          class="bg-white p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-md transition-shadow"
-        >
+          class="bg-white p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-md transition-shadow">
           <div
-            class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl shrink-0"
-          >
+            class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl shrink-0">
             📋
           </div>
           <div>
@@ -466,11 +408,9 @@ onMounted(loadData);
 
         <!-- Stat 2: Total Skor -->
         <div
-          class="bg-white p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-md transition-shadow"
-        >
+          class="bg-white p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-md transition-shadow">
           <div
-            class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl shrink-0"
-          >
+            class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl shrink-0">
             ⭐
           </div>
           <div>
@@ -487,11 +427,9 @@ onMounted(loadData);
 
         <!-- Stat 3: Pelajaran & Kelas -->
         <div
-          class="bg-white p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-md transition-shadow"
-        >
+          class="bg-white p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-md transition-shadow">
           <div
-            class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl shrink-0"
-          >
+            class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl shrink-0">
             📖
           </div>
           <div class="min-w-0">
@@ -507,11 +445,9 @@ onMounted(loadData);
 
         <!-- Stat 4: Status Pelaksanaan -->
         <div
-          class="bg-white p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-md transition-shadow"
-        >
+          class="bg-white p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-md transition-shadow">
           <div
-            class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl shrink-0"
-          >
+            class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl shrink-0">
             ⏱️
           </div>
           <div class="min-w-0">
@@ -537,27 +473,19 @@ onMounted(loadData);
                 <span>ℹ️</span>
                 <span>Informasi Kuis</span>
               </h2>
-              <router-link
-                :to="`/admin/kuis/${quizId}/edit`"
-                class="text-xs font-semibold text-primary hover:underline flex items-center gap-1"
-              >
+              <router-link :to="`/admin/kuis/${quizId}/edit`"
+                class="text-xs font-semibold text-primary hover:underline flex items-center gap-1">
                 ✏️ Edit
               </router-link>
             </div>
 
             <!-- Quiz Thumbnail or Subject Banner -->
-            <div
-              v-if="selectedLesson?.thumbnail"
-              class="relative rounded-2xl overflow-hidden border border-gray-100 group"
-            >
-              <img
-                :src="getImageUrl(selectedLesson.thumbnail)"
-                :alt="selectedLesson.title"
-                class="w-full h-36 object-cover group-hover:scale-105 transition-transform duration-300"
-              />
+            <div v-if="selectedLesson?.thumbnail"
+              class="relative rounded-2xl overflow-hidden border border-gray-100 group">
+              <img :src="getImageUrl(selectedLesson.thumbnail)" :alt="selectedLesson.title"
+                class="w-full h-36 object-cover group-hover:scale-105 transition-transform duration-300" />
               <div
-                class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-3"
-              >
+                class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-3">
                 <span class="text-white text-xs font-semibold">
                   Mata Pelajaran: {{ selectedLesson.title }}
                 </span>
@@ -581,7 +509,8 @@ onMounted(loadData);
                 <span class="text-xs font-semibold uppercase tracking-wider text-gray-400 block mb-0.5">
                   Deskripsi
                 </span>
-                <div class="p-3 bg-gray-50 rounded-xl text-gray-700 text-xs sm:text-sm border border-gray-100 whitespace-pre-wrap leading-relaxed">
+                <div
+                  class="p-3 bg-gray-50 rounded-xl text-gray-700 text-xs sm:text-sm border border-gray-100 whitespace-pre-wrap leading-relaxed">
                   {{ selectedQuiz.description || 'Tidak ada deskripsi.' }}
                 </div>
               </div>
@@ -589,11 +518,8 @@ onMounted(loadData);
               <!-- Mata Pelajaran -->
               <div class="flex items-center justify-between pt-2 border-t border-gray-100">
                 <span class="text-gray-500 text-xs">Pelajaran</span>
-                <router-link
-                  v-if="selectedLesson?.id"
-                  :to="`/admin/pelajaran/${selectedLesson.id}`"
-                  class="font-semibold text-primary hover:underline text-xs flex items-center gap-1"
-                >
+                <router-link v-if="selectedLesson?.id" :to="`/admin/pelajaran/${selectedLesson.id}`"
+                  class="font-semibold text-primary hover:underline text-xs flex items-center gap-1">
                   {{ selectedLesson.title }} ↗
                 </router-link>
                 <span v-else class="text-gray-400 text-xs">-</span>
@@ -610,10 +536,8 @@ onMounted(loadData);
               <!-- Status Kuis -->
               <div class="flex items-center justify-between">
                 <span class="text-gray-500 text-xs">Status Kuis</span>
-                <span
-                  class="badge badge-sm font-semibold"
-                  :class="selectedQuiz.is_active ? 'badge-success text-white' : 'badge-ghost text-gray-400'"
-                >
+                <span class="badge badge-sm font-semibold"
+                  :class="selectedQuiz.is_active ? 'badge-success text-white' : 'badge-ghost text-gray-400'">
                   {{ selectedQuiz.is_active ? 'Aktif' : 'Tidak Aktif' }}
                 </span>
               </div>
@@ -643,25 +567,22 @@ onMounted(loadData);
           </div>
 
           <!-- Card: Navigasi Cepat Terkait -->
-          <div class="bg-gradient-to-br from-primary/10 via-white to-purple-500/10 rounded-3xl p-6 shadow-sm border border-primary/20 space-y-3">
+          <div
+            class="bg-gradient-to-br from-primary/10 via-white to-purple-500/10 rounded-3xl p-6 shadow-sm border border-primary/20 space-y-3">
             <h3 class="text-sm font-bold text-gray-800">
               Aksi Cepat Kuis ⚡
             </h3>
             <p class="text-xs text-gray-500">
-              Kelola pertanyaan atau tinjau capaian nilai para siswa pada kuis ini.
+              Tinjau hasil pengerjaan kuis atau rekap nilai siswa.
             </p>
             <div class="space-y-2 pt-2">
-              <router-link
-                :to="`/admin/kuis/${quizId}/pertanyaan`"
-                class="btn btn-outline btn-primary btn-sm w-full rounded-xl justify-start font-medium"
-              >
-                ❓ Buka Halaman Kelola Soal Lengkap
+              <router-link to="/admin/kuis/hasil"
+                class="btn btn-outline btn-primary btn-sm w-full rounded-xl justify-start font-medium">
+                🏆 Hasil Kuis
               </router-link>
-              <router-link
-                to="/admin/kuis/hasil"
-                class="btn btn-outline btn-neutral btn-sm w-full rounded-xl justify-start font-medium"
-              >
-                🏆 Rekap Hasil & Nilai Siswa
+              <router-link to="/admin/rekap-nilai"
+                class="btn btn-outline btn-neutral btn-sm w-full rounded-xl justify-start font-medium">
+                📊 Rekap Nilai Siswa
               </router-link>
             </div>
           </div>
@@ -686,33 +607,13 @@ onMounted(loadData);
 
               <!-- Action buttons -->
               <div class="flex items-center gap-2">
-                <router-link
-                  :to="`/admin/kuis/${quizId}/pertanyaan/tambah`"
-                  class="btn btn-primary btn-sm rounded-xl text-white shadow-sm hover:shadow"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4 mr-1"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 4v16m8-8H4"
-                    />
+                <router-link :to="`/admin/kuis/${quizId}/pertanyaan/tambah`"
+                  class="btn btn-primary btn-sm rounded-xl text-white shadow-sm hover:shadow">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                   </svg>
                   Tambah Soal
-                </router-link>
-
-                <router-link
-                  :to="`/admin/kuis/${quizId}/pertanyaan`"
-                  class="btn btn-ghost btn-sm rounded-xl text-gray-600 hover:bg-gray-100"
-                  title="Buka Halaman Manajemen Soal Penuh"
-                >
-                  ⚙️ Kelola Soal
                 </router-link>
               </div>
             </div>
@@ -720,31 +621,15 @@ onMounted(loadData);
             <!-- Search box -->
             <div class="pt-2 border-t border-gray-100">
               <div class="relative w-full">
-                <input
-                  v-model="searchQuery"
-                  type="text"
-                  placeholder="Cari teks pertanyaan..."
-                  class="input input-sm input-bordered w-full rounded-xl pl-9 bg-gray-50/50 focus:bg-white text-xs sm:text-sm"
-                />
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-4 w-4 absolute left-3 top-2 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
+                <input v-model="searchQuery" type="text" placeholder="Cari teks pertanyaan..."
+                  class="input input-sm input-bordered w-full rounded-xl pl-9 bg-gray-50/50 focus:bg-white text-xs sm:text-sm" />
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 absolute left-3 top-2 text-gray-400" fill="none"
+                  viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                <button
-                  v-if="searchQuery"
-                  @click="searchQuery = ''"
-                  class="absolute right-3 top-2 text-xs text-gray-400 hover:text-gray-600"
-                >
+                <button v-if="searchQuery" @click="searchQuery = ''"
+                  class="absolute right-3 top-2 text-xs text-gray-400 hover:text-gray-600">
                   ✕
                 </button>
               </div>
@@ -753,53 +638,42 @@ onMounted(loadData);
 
           <!-- Questions List -->
           <div v-if="filteredQuestions.length > 0" class="space-y-4">
-            <div
-              v-for="(question, index) in filteredQuestions"
-              :key="question.id"
-              class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all space-y-3"
-            >
+            <div v-for="(question, index) in filteredQuestions" :key="question.id"
+              class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all space-y-3">
               <!-- Question Header -->
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-100">
+              <div
+                class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-100">
                 <div class="flex items-center flex-wrap gap-2">
                   <!-- Number badge -->
                   <span
-                    class="w-7 h-7 rounded-xl bg-gray-900 text-white text-xs font-bold flex items-center justify-center shrink-0"
-                  >
+                    class="w-7 h-7 rounded-xl bg-gray-900 text-white text-xs font-bold flex items-center justify-center shrink-0">
                     #{{ question.order || index + 1 }}
                   </span>
 
                   <!-- Type Badge -->
-                  <span
-                    class="px-2.5 py-1 rounded-full text-xs font-semibold border flex items-center gap-1.5"
-                    :class="getTypeMeta(question.type).badgeClass"
-                  >
+                  <span class="px-2.5 py-1 rounded-full text-xs font-semibold border flex items-center gap-1.5"
+                    :class="getTypeMeta(question.type).badgeClass">
                     <span>{{ getTypeMeta(question.type).icon }}</span>
                     <span>{{ getTypeMeta(question.type).label }}</span>
                   </span>
 
                   <!-- Score Badge -->
                   <span
-                    class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-1"
-                  >
+                    class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-1">
                     ⭐ {{ question.score }} Poin
                   </span>
                 </div>
 
                 <!-- Action buttons -->
                 <div class="flex items-center gap-1.5 self-end sm:self-auto">
-                  <router-link
-                    :to="`/admin/kuis/${quizId}/pertanyaan/${question.id}/edit`"
+                  <router-link :to="`/admin/kuis/${quizId}/pertanyaan/${question.id}/edit`"
                     class="btn btn-xs btn-warning text-white rounded-lg flex items-center gap-1"
-                    title="Edit Pertanyaan"
-                  >
+                    title="Edit Pertanyaan">
                     ✏️ Edit
                   </router-link>
 
-                  <button
-                    @click="deleteQuestion(question.id)"
-                    class="btn btn-xs btn-error text-white rounded-lg"
-                    title="Hapus Pertanyaan"
-                  >
+                  <button @click="deleteQuestion(question.id)" class="btn btn-xs btn-error text-white rounded-lg"
+                    title="Hapus Pertanyaan">
                     🗑️
                   </button>
                 </div>
@@ -812,22 +686,16 @@ onMounted(loadData);
                 </p>
 
                 <!-- Question Image Thumbnail (if present) -->
-                <div
-                  v-if="question.question_image"
-                  class="flex items-center gap-3 p-2 bg-gray-50 rounded-2xl border border-gray-100 max-w-sm"
-                >
-                  <img
-                    :src="getImageUrl(question.question_image)"
-                    alt="Gambar Pertanyaan"
+                <div v-if="question.question_image"
+                  class="flex items-center gap-3 p-2 bg-gray-50 rounded-2xl border border-gray-100 max-w-sm">
+                  <img :src="getImageUrl(question.question_image)" alt="Gambar Pertanyaan"
                     class="w-20 h-20 object-cover rounded-xl cursor-pointer hover:opacity-90 transition-opacity border border-gray-200"
-                    @click="openImageModal(getImageUrl(question.question_image), `Pertanyaan #${question.order || index + 1}`)"
-                  />
+                    @click="openImageModal(getImageUrl(question.question_image), `Pertanyaan #${question.order || index + 1}`)" />
                   <div class="space-y-1">
                     <p class="text-xs font-semibold text-gray-700">Lampiran Gambar</p>
                     <button
                       @click="openImageModal(getImageUrl(question.question_image), `Pertanyaan #${question.order || index + 1}`)"
-                      class="btn btn-xs btn-ghost text-primary text-[11px] p-0 h-auto hover:bg-transparent hover:underline"
-                    >
+                      class="btn btn-xs btn-ghost text-primary text-[11px] p-0 h-auto hover:bg-transparent hover:underline">
                       🔍 Perbesar Gambar
                     </button>
                   </div>
@@ -837,10 +705,7 @@ onMounted(loadData);
           </div>
 
           <!-- Empty Questions State -->
-          <div
-            v-else
-            class="bg-white rounded-3xl p-10 sm:p-14 text-center shadow-sm border border-gray-100 space-y-4"
-          >
+          <div v-else class="bg-white rounded-3xl p-10 sm:p-14 text-center shadow-sm border border-gray-100 space-y-4">
             <div class="text-5xl">📝</div>
             <div class="max-w-md mx-auto space-y-1">
               <h3 class="text-lg font-bold text-gray-800">
@@ -856,17 +721,11 @@ onMounted(loadData);
             </div>
 
             <div class="pt-2 flex justify-center gap-2">
-              <button
-                v-if="searchQuery"
-                @click="searchQuery = ''"
-                class="btn btn-outline btn-sm rounded-xl"
-              >
+              <button v-if="searchQuery" @click="searchQuery = ''" class="btn btn-outline btn-sm rounded-xl">
                 Reset Pencarian
               </button>
-              <router-link
-                :to="`/admin/kuis/${quizId}/pertanyaan/tambah`"
-                class="btn btn-primary btn-sm rounded-xl text-white shadow-sm"
-              >
+              <router-link :to="`/admin/kuis/${quizId}/pertanyaan/tambah`"
+                class="btn btn-primary btn-sm rounded-xl text-white shadow-sm">
                 ➕ Tambah Pertanyaan Pertama
               </router-link>
             </div>
@@ -876,40 +735,26 @@ onMounted(loadData);
     </div>
 
     <!-- Image Lightbox Modal -->
-    <div
-      v-if="previewImage"
+    <div v-if="previewImage"
       class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fadeIn"
-      @click.self="closeImageModal"
-    >
-      <div
-        class="bg-white rounded-3xl p-4 sm:p-6 max-w-2xl w-full shadow-2xl space-y-4 relative overflow-hidden"
-      >
+      @click.self="closeImageModal">
+      <div class="bg-white rounded-3xl p-4 sm:p-6 max-w-2xl w-full shadow-2xl space-y-4 relative overflow-hidden">
         <div class="flex items-center justify-between pb-2 border-b border-gray-100">
           <h3 class="font-bold text-gray-800 text-sm sm:text-base flex items-center gap-2">
             <span>🖼️</span>
             <span>{{ previewImage.title }}</span>
           </h3>
-          <button
-            @click="closeImageModal"
-            class="btn btn-sm btn-circle btn-ghost text-gray-500 hover:text-gray-800"
-          >
+          <button @click="closeImageModal" class="btn btn-sm btn-circle btn-ghost text-gray-500 hover:text-gray-800">
             ✕
           </button>
         </div>
 
         <div class="flex justify-center bg-gray-50 rounded-2xl p-2 border border-gray-100 max-h-[70vh] overflow-auto">
-          <img
-            :src="previewImage.url"
-            :alt="previewImage.title"
-            class="rounded-xl max-h-[65vh] object-contain"
-          />
+          <img :src="previewImage.url" :alt="previewImage.title" class="rounded-xl max-h-[65vh] object-contain" />
         </div>
 
         <div class="flex justify-end">
-          <button
-            @click="closeImageModal"
-            class="btn btn-sm btn-neutral text-white rounded-xl"
-          >
+          <button @click="closeImageModal" class="btn btn-sm btn-neutral text-white rounded-xl">
             Tutup
           </button>
         </div>
@@ -924,6 +769,7 @@ onMounted(loadData);
     opacity: 0;
     transform: translateY(4px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

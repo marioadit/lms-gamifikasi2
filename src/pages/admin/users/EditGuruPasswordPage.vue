@@ -43,7 +43,7 @@ const handleSubmit = async () => {
       password: form.value.password,
       password_confirmation: form.value.password_confirmation
     });
-    router.push("/admin/users/guru");
+    router.push(`/admin/users/guru/${teacherId}`);
   } catch (err) {
     errorMessage.value = typeof err === "string" ? err : (err?.response?.data?.message || err?.message || "Gagal memperbarui password guru");
   } finally {
@@ -52,7 +52,7 @@ const handleSubmit = async () => {
 };
 
 const handleCancel = () => {
-  router.push("/admin/users/guru");
+  router.push(`/admin/users/guru/${teacherId}`);
 };
 </script>
 

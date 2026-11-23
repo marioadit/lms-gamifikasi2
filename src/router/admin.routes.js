@@ -27,7 +27,6 @@ import QuizPage from "../pages/admin/quiz/QuizPage.vue";
 import AddQuizPage from "../pages/admin/quiz/AddQuizPage.vue";
 import DetailQuizPage from "../pages/admin/quiz/DetailQuizPage.vue";
 import EditQuizPage from "../pages/admin/quiz/EditQuizPage.vue";
-import DetailQuestionsPage from "../pages/admin/quiz/DetailQuestionsPage.vue";
 import EditQuestionsPage from "../pages/admin/quiz/EditQuestionsPage.vue";
 import AddQuestionsPage from "../pages/admin/quiz/AddQuestionsPage.vue";
 import AdminDetailQuizPage from "../pages/admin/quiz/AdminDetailQuizPage.vue";
@@ -191,9 +190,7 @@ export default [
             },
             {
                 path: "kuis/:id/pertanyaan",
-                name: "adminDetailQuestions",
-                component: DetailQuestionsPage,
-                meta: { title: "Detail Pertanyaan", requiresAuth: true }
+                redirect: to => `/admin/kuis/${to.params.id}`
             },
             {
                 path: "kuis/:id/pertanyaan/tambah",

@@ -21,7 +21,7 @@ const successMessage = ref("");
 const classes = computed(() => classesStore.classes);
 
 const cancelEdit = () => {
-  router.push("/admin/pelajaran");
+  router.push(`/admin/pelajaran/${lessonsId.value}`);
 };
 
 const formData = ref({
@@ -109,9 +109,9 @@ const handleSubmit = async () => {
         icon: "success",
         confirmButtonText: "OK",
       });
-      
+
       // Redirect immediately after success
-      router.push("/admin/pelajaran");
+      router.push(`/admin/pelajaran/${lessonsId.value}`);
     }
   } catch (error) {
     console.error("Error updating lesson:", error);
@@ -130,7 +130,7 @@ onMounted(async () => {
   try {
     await classesStore.getClasses();
     await lessonsStore.getLessonsById(lessonsId.value);
-    
+
     if (selectedLesson.value) {
       formData.value = {
         class_id: selectedLesson.value.class_id,
@@ -157,41 +157,23 @@ onMounted(async () => {
         <p class="text-gray-500">Edit materi pelajaran terkait</p>
       </div>
       <button @click="cancelEdit" class="btn btn-outline">
-        Kembali ke Daftar
+        Kembali
       </button>
     </div>
 
     <!-- Alert Messages -->
     <div v-if="errorMessage" class="alert alert-error mb-6">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="stroke-current shrink-0 h-6 w-6"
-        fill="none"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-        />
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
       <span>{{ errorMessage }}</span>
     </div>
 
     <div v-if="successMessage" class="alert alert-success mb-6">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="stroke-current shrink-0 h-6 w-6"
-        fill="none"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-        />
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
       <span>{{ successMessage }}</span>
     </div>
@@ -202,21 +184,15 @@ onMounted(async () => {
     </div>
 
     <!-- Form Tambah Pelajaran -->
-    <form
-      @submit.prevent="handleSubmit"
-      class="bg-white p-6 rounded-lg shadow-md max-w-4xl mx-auto"
-    >
+    <form @submit.prevent="handleSubmit" class="bg-white p-6 rounded-lg shadow-md max-w-4xl mx-auto">
       <div class="grid grid-cols-1 gap-6">
         <!-- Pilih Kelas -->
         <div class="form-control">
           <label class="label">
             <span class="label-text font-medium">Kelas</span>
           </label>
-          <select
-            v-model="formData.class_id"
-            class="select select-bordered w-full focus:outline-none focus:border-primary"
-            required
-          >
+          <select v-model="formData.class_id"
+            class="select select-bordered w-full focus:outline-none focus:border-primary" required>
             <option value="" disabled selected>Pilih Kelas</option>
             <option v-for="cls in classes" :key="cls.id" :value="cls.id">
               {{ cls.name }}
@@ -229,13 +205,9 @@ onMounted(async () => {
           <label class="label">
             <span class="label-text font-medium">Judul Pelajaran</span>
           </label>
-          <input
-            type="text"
-            v-model="formData.title"
+          <input type="text" v-model="formData.title"
             class="input input-bordered w-full focus:outline-none focus:border-primary"
-            placeholder="Masukkan judul pelajaran"
-            required
-          />
+            placeholder="Masukkan judul pelajaran" required />
         </div>
 
         <!-- Deskripsi -->
@@ -243,12 +215,9 @@ onMounted(async () => {
           <label class="label">
             <span class="label-text font-medium">Deskripsi</span>
           </label>
-          <textarea
-            v-model="formData.description"
+          <textarea v-model="formData.description"
             class="textarea textarea-bordered min-h-[120px] w-full p-4 focus:outline-none focus:border-primary"
-            placeholder="Tulis deskripsi pelajaran di sini..."
-            required
-          ></textarea>
+            placeholder="Tulis deskripsi pelajaran di sini..." required></textarea>
           <label class="label">
             <span class="label-text-alt text-gray-500">
               Tuliskan deskripsi singkat tentang pelajaran ini
@@ -261,16 +230,11 @@ onMounted(async () => {
           <label class="label">
             <span class="label-text font-medium">Konten Pelajaran</span>
           </label>
-          <textarea
-            v-model="formData.content"
+          <textarea v-model="formData.content"
             class="textarea textarea-bordered min-h-[300px] w-full p-4 focus:outline-none focus:border-primary"
-            placeholder="Tulis konten pelajaran di sini..."
-            required
-          ></textarea>
+            placeholder="Tulis konten pelajaran di sini..." required></textarea>
           <label class="label">
-            <span class="label-text-alt text-gray-500"
-              >Tuliskan materi pelajaran secara lengkap</span
-            >
+            <span class="label-text-alt text-gray-500">Tuliskan materi pelajaran secara lengkap</span>
           </label>
         </div>
 
@@ -280,24 +244,14 @@ onMounted(async () => {
             <span class="label-text font-medium">Thumbnail</span>
           </label>
           <div class="flex flex-col gap-4">
-            <input
-              type="file"
-              @change="handleFileUpload"
-              accept="image/*"
-              class="file-input file-input-bordered w-full focus:outline-none focus:border-primary"
-            />
+            <input type="file" @change="handleFileUpload" accept="image/*"
+              class="file-input file-input-bordered w-full focus:outline-none focus:border-primary" />
             <!-- Preview thumbnail -->
             <div v-if="thumbnailPreview || formData.thumbnail" class="relative w-fit">
-              <img
-                :src="thumbnailPreview || getFullThumbnailUrl(formData.thumbnail)"
-                alt="Preview"
-                class="w-32 h-32 object-cover rounded-lg border border-gray-200"
-              />
-              <button
-                @click="clearThumbnail"
-                type="button"
-                class="btn btn-circle btn-xs absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 border-none text-white"
-              >
+              <img :src="thumbnailPreview || getFullThumbnailUrl(formData.thumbnail)" alt="Preview"
+                class="w-32 h-32 object-cover rounded-lg border border-gray-200" />
+              <button @click="clearThumbnail" type="button"
+                class="btn btn-circle btn-xs absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 border-none text-white">
                 ✕
               </button>
             </div>
@@ -313,10 +267,7 @@ onMounted(async () => {
             Batal
           </button>
           <button type="submit" class="btn btn-primary" :disabled="isLoading">
-            <span
-              v-if="isLoading"
-              class="loading loading-spinner loading-sm"
-            ></span>
+            <span v-if="isLoading" class="loading loading-spinner loading-sm"></span>
             Simpan Perubahan
           </button>
         </div>
