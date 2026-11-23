@@ -9,13 +9,20 @@ const route = useRoute();
 const teacherStore = useTeacherStore();
 
 const teachers = computed(() => teacherStore.teachers);
-const isLoading = computed(() => teacherStore.loading);
+const isLoading = ref(true);
+let isFetching = false;
 const errorMessage = computed(() => teacherStore.error);
 
-const loadTeachers = async () => {
-  await teacherStore.getTeachers();
+const loadTeachers = async (force = false) => {
+  if (isFetching && !force) return;
+  isFetching = true;
+  isLoading.value = true;
   try {
-    const res = await getClasses();
+    const [_, res] = await Promise.all([
+      teacherStore.getTeachers(),
+      getClasses().catch(() => null)
+    ]);
+
     let classList = [];
     if (res) {
       if (res.data && Array.isArray(res.data.data)) {
@@ -40,6 +47,9 @@ const loadTeachers = async () => {
     }
   } catch (err) {
     console.error("Error fetching classes for teachers:", err);
+  } finally {
+    isLoading.value = false;
+    isFetching = false;
   }
 };
 
@@ -47,8 +57,8 @@ onMounted(loadTeachers);
 
 watch(
   () => route.fullPath,
-  (newPath) => {
-    if (newPath === "/admin/users/guru") {
+  (newPath, oldPath) => {
+    if (newPath === "/admin/users/guru" && oldPath && oldPath !== "/admin/users/guru") {
       loadTeachers();
     }
   }

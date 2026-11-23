@@ -20,37 +20,45 @@ const isTaughtByMe = (cls) => {
   return teacherId === currentUserId.value;
 };
 
-// Load classes when component mounts
-onMounted(async () => {
+const isLoading = ref(true);
+let isFetching = false;
+
+const loadData = async (force = false) => {
+  if (isFetching && !force) return;
+  isFetching = true;
+  isLoading.value = true;
   try {
-    await classesStore.getClasses();
-    await lessonsStore.getLessons(); // Load all lessons to get counts
+    await Promise.all([
+      classesStore.getClasses(),
+      lessonsStore.getLessons().catch(() => null)
+    ]);
   } catch (error) {
     console.error("Error loading classes:", error);
+  } finally {
+    isLoading.value = false;
+    isFetching = false;
   }
+};
+
+// Load classes when component mounts
+onMounted(async () => {
+  await loadData();
 });
 
 // Also reload when navigating back to this page
 watch(
   () => route.fullPath,
-  async (newPath) => {
-    if (newPath === "/admin/kelas") {
-      try {
-        await classesStore.getClasses();
-        await lessonsStore.getLessons();
-      } catch (error) {
-        console.error("Error loading classes:", error);
-      }
+  async (newPath, oldPath) => {
+    if (newPath === "/admin/kelas" && oldPath && oldPath !== "/admin/kelas") {
+      await loadData();
     }
-  },
-  { immediate: true }
+  }
 );
 
-const classes = computed(() => classesStore.classes.map(cls => ({
+const classes = computed(() => (classesStore.classes || []).map(cls => ({
   ...cls,
-  lesson_count: lessonsStore.lessons.filter(lesson => lesson.class_id === cls.id).length
+  lesson_count: (lessonsStore.lessons || []).filter(lesson => lesson.class_id === cls.id).length
 })));
-const isLoading = computed(() => classesStore.loading);
 const errorMessage = computed(() => classesStore.error);
 
 const isClassModalOpen = ref(false);
@@ -181,7 +189,7 @@ const saveStudents = () => {
       {{ errorMessage }}
     </div>
 
-    <div class="overflow-x-auto bg-white rounded-lg shadow">
+    <div v-else class="overflow-x-auto bg-white rounded-lg shadow">
       <table class="table table-zebra w-full">
         <thead>
           <tr>

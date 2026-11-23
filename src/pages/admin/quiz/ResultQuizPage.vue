@@ -1,11 +1,13 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
+import { useRoute } from "vue-router";
 import { useQuizStore } from "../../../store/quizStore";
 import { useStudentStore } from "../../../store/studentStore";
 import { useClassesStore } from "../../../store/classesStore";
 import { useLessonsStore } from "../../../store/lessonsStore";
 import { useAuthStore } from "../../../store/authStore";
 
+const route = useRoute();
 const quizStore = useQuizStore();
 const studentStore = useStudentStore();
 const classesStore = useClassesStore();
@@ -15,6 +17,7 @@ const authStore = useAuthStore();
 const answerHistories = ref([]);
 const totalQuizzesCount = ref(0);
 const isLoading = ref(true);
+let isFetching = false;
 const errorMessage = ref(null);
 
 const searchQuery = ref("");
@@ -42,7 +45,9 @@ const isStudentInGuruClasses = (student) => {
   });
 };
 
-const loadData = async () => {
+const loadData = async (force = false) => {
+  if (isFetching && !force) return;
+  isFetching = true;
   isLoading.value = true;
   errorMessage.value = null;
 
@@ -75,10 +80,20 @@ const loadData = async () => {
     errorMessage.value = typeof err === "string" ? err : (err?.response?.data?.message || err?.message || "Gagal memuat hasil kuis.");
   } finally {
     isLoading.value = false;
+    isFetching = false;
   }
 };
 
 onMounted(loadData);
+
+watch(
+  () => route.fullPath,
+  (newPath, oldPath) => {
+    if (newPath === "/admin/kuis/hasil" && oldPath && oldPath !== "/admin/kuis/hasil") {
+      loadData();
+    }
+  }
+);
 
 const totalAvailableQuizzesCount = computed(() => {
   const allQuizzes = quizStore.quizzes || [];

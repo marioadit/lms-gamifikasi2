@@ -3,8 +3,8 @@ import { ref, onMounted, computed, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useQuizStore } from "../../../store/quizStore";
 import { useLessonsStore } from "../../../store/lessonsStore";
+import { getClasses } from "../../../api/classesApi";
 import Swal from "sweetalert2";
-import { Vue3Lottie } from 'vue3-lottie';
 
 import { useClassesStore } from "../../../store/classesStore";
 import { useAuthStore } from "../../../store/authStore";
@@ -25,20 +25,37 @@ const selectedLessonId = ref("");
 
 const myClassIds = computed(() => {
   if (userRole.value !== 'guru') return null;
-  return classesStore.classes
+  return (classesStore.classes || [])
     .filter(cls => Number(cls.teacher_id || cls.teacher?.id || 0) === currentUserId.value)
     .map(cls => cls.id);
 });
 
-const loadQuizzes = async () => {
+const loadQuizzes = async (force = false) => {
+  if (isLoading.value && !force) return;
   isLoading.value = true;
   errorMessage.value = null;
   try {
-    await Promise.all([
-      classesStore.getClasses().catch(() => null),
+    const fetchPromises = [
       quizStore.getQuizzes(),
       lessonsStore.getLessons().catch(() => null)
-    ]);
+    ];
+
+    // Ambil data kelas langsung secara ringkas hanya jika user adalah guru
+    // Hindari N+1 loop getClassStudents yang lambat di classesStore
+    if (userRole.value === 'guru' && (!classesStore.classes || classesStore.classes.length === 0 || force)) {
+      fetchPromises.push(
+        getClasses()
+          .then((res) => {
+            const list = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+            classesStore.classes = list;
+          })
+          .catch((err) => {
+            console.error("Error fetching classes directly:", err);
+          })
+      );
+    }
+
+    await Promise.all(fetchPromises);
   } catch (error) {
     errorMessage.value = error.message;
   } finally {
@@ -60,16 +77,15 @@ onMounted(async () => {
 
 watch(
   () => route.fullPath,
-  async (newPath) => {
-    if (newPath === "/admin/kuis") {
+  async (newPath, oldPath) => {
+    if (newPath === "/admin/kuis" && oldPath && oldPath !== "/admin/kuis") {
       try {
         await loadQuizzes();
       } catch (error) {
         console.error("Error loading quizzes:", error);
       }
     }
-  },
-  { immediate: true }
+  }
 );
 
 const getLessonTitle = (quiz) => {
@@ -183,13 +199,9 @@ const deleteQuiz = async (id) => {
     </div>
 
     <!-- Loading indicator -->
-    <div v-if="isLoading" class="flex justify-center my-12 flex-col items-center">
-      <Vue3Lottie
-        animation-link="https://assets1.lottiefiles.com/packages/lf20_qjosmr4w.json"
-        :height="200"
-        :width="200"
-      />
-      <p class="text-gray-500 mt-4">Memuat data kuis...</p>
+    <div v-if="isLoading" class="flex justify-center my-16 flex-col items-center">
+      <div class="loading loading-spinner loading-lg text-primary"></div>
+      <p class="text-gray-500 mt-4 text-sm font-medium">Memuat data kuis...</p>
     </div>
 
     <!-- Error message -->
@@ -276,13 +288,13 @@ const deleteQuiz = async (id) => {
     <!-- Empty State -->
     <div
       v-else
-      class="bg-white rounded-2xl shadow border border-gray-100 p-8 text-center"
+      class="bg-white rounded-2xl shadow border border-gray-100 p-12 text-center"
     >
-      <Vue3Lottie
-        animation-link="https://assets9.lottiefiles.com/packages/lf20_hl5n0bwb.json"
-        :height="250"
-        :width="250"
-      />
+      <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+        </svg>
+      </div>
       <h3 class="text-lg font-bold text-gray-900 mb-1">
         Belum Ada Kuis
       </h3>

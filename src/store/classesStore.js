@@ -26,21 +26,15 @@ export const useClassesStore = defineStore("classes", {
                     classesList = response.data;
                 } else if (response.data && Array.isArray(response.data.data)) {
                     classesList = response.data.data;
+                } else if (Array.isArray(response)) {
+                    classesList = response;
                 }
 
-                // Fetch student count for each class
+                // Gunakan students_count langsung dari backend agar cepat tanpa loop request N+1
                 for (const cls of classesList) {
-                    try {
-                        const studentsResponse = await getClassStudents(cls.id);
-                        console.log(studentsResponse);
-                        if (studentsResponse.status === 200 && studentsResponse.data) {
-                            cls.student_count = Array.isArray(studentsResponse.data) ? studentsResponse.data.length : 0;
-                            this.classStudents[cls.id] = studentsResponse.data;
-                        }
-                    } catch (error) {
-                        console.error(`Error fetching students for class ${cls.id}:`, error);
-                        cls.student_count = 0;
-                    }
+                    cls.student_count = typeof cls.students_count !== 'undefined' 
+                        ? cls.students_count 
+                        : (cls.student_count ?? (Array.isArray(cls.students) ? cls.students.length : 0));
                 }
 
                 this.classes = classesList;
@@ -60,16 +54,11 @@ export const useClassesStore = defineStore("classes", {
                 if (response.data) {
                     const classData = response.data.data || response.data;
 
-                    // Fetch student count for the class
-                    try {
-                        const studentsResponse = await getClassStudents(id);
-                        if (studentsResponse.status === 200 && studentsResponse.data) {
-                            classData.student_count = Array.isArray(studentsResponse.data) ? studentsResponse.data.length : 0;
-                            this.classStudents[id] = studentsResponse.data;
-                        }
-                    } catch (error) {
-                        console.error(`Error fetching students for class ${id}:`, error);
-                        classData.student_count = 0;
+                    if (Array.isArray(classData.students)) {
+                        classData.student_count = classData.students.length;
+                        this.classStudents[id] = classData.students;
+                    } else if (typeof classData.students_count !== 'undefined') {
+                        classData.student_count = classData.students_count;
                     }
 
                     this.selectedClass = classData;

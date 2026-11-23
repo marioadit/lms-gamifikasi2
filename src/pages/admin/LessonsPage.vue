@@ -35,34 +35,41 @@ const classes = computed(() => {
 const { proxy } = getCurrentInstance();
 const base_url = proxy.$base_url;
 
-const loadLessons = async () => {
-  await Promise.all([
-    lessonsStore.getLessons(),
-    quizStore.getQuizzes().catch(() => null)
-  ]);
-};
+const isLoading = ref(true);
+let isFetching = false;
 
-const loadClasses = async () => {
-  await classesStore.getClasses();
+const loadAllData = async (force = false) => {
+  if (isFetching && !force) return;
+  isFetching = true;
+  isLoading.value = true;
+  try {
+    await Promise.all([
+      classesStore.getClasses().catch(() => null),
+      lessonsStore.getLessons().catch(() => null),
+      quizStore.getQuizzes().catch(() => null)
+    ]);
+  } catch (error) {
+    console.error("Error loading lessons page data:", error);
+  } finally {
+    isLoading.value = false;
+    isFetching = false;
+  }
 };
 
 onMounted(async () => {
-  await loadClasses();
-  await loadLessons();
+  await loadAllData();
 });
 
 // Watch for route changes
 watch(
   () => route.fullPath,
-  async (newPath) => {
-    if (newPath === "/admin/pelajaran") {
-      await loadLessons();
+  async (newPath, oldPath) => {
+    if (newPath === "/admin/pelajaran" && oldPath && oldPath !== "/admin/pelajaran") {
+      await loadAllData();
     }
-  },
-  { immediate: true }
+  }
 );
 
-const isLoading = computed(() => lessonsStore.loading);
 const errorMessage = computed(() => lessonsStore.error);
 
 const filteredLessons = computed(() => {
@@ -176,7 +183,7 @@ const deleteLesson = async (lessonId) => {
     </div>
 
     <!-- Lessons Table -->
-    <div class="overflow-x-auto bg-white rounded-lg shadow">
+    <div v-else class="overflow-x-auto bg-white rounded-lg shadow">
       <table class="table table-zebra w-full">
         <thead>
           <tr>

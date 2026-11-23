@@ -22,12 +22,27 @@ const myClassIds = computed(() => {
     .map(cls => cls.id);
 });
 
-const loadClasses = async () => {
-  await classesStore.getClasses().catch(() => null);
-  await studentStore.getUserStudent();
+const isLoading = ref(true);
+let isFetching = false;
+
+const loadData = async (force = false) => {
+  if (isFetching && !force) return;
+  isFetching = true;
+  isLoading.value = true;
+  try {
+    await Promise.all([
+      classesStore.getClasses().catch(() => null),
+      studentStore.getUserStudent().catch(() => null)
+    ]);
+  } catch (error) {
+    console.error("Error loading students data:", error);
+  } finally {
+    isLoading.value = false;
+    isFetching = false;
+  }
 };
 
-onMounted(loadClasses);
+onMounted(loadData);
 
 const students = computed(() => {
   const allStudents = studentStore.students || [];
@@ -66,15 +81,14 @@ const canManageStudent = (student) => {
   }
   return false;
 };
-const isLoading = computed(() => studentStore.loading);
 const errorMessage = computed(() => studentStore.error);
 const successMessage = computed(() => studentStore.success);
 
 watch(
   () => route.fullPath,
-  (newPath) => {
-    if (newPath === "/admin/users/siswa") {
-      loadClasses();
+  (newPath, oldPath) => {
+    if (newPath === "/admin/users/siswa" && oldPath && oldPath !== "/admin/users/siswa") {
+      loadData();
     }
   }
 );
