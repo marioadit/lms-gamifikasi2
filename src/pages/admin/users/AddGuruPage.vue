@@ -44,7 +44,11 @@ const handleSubmit = async () => {
 };
 
 const handleCancel = () => {
-  router.push("/admin/users/guru");
+  if (window.history.state && window.history.state.back) {
+    router.back();
+  } else {
+    router.push("/admin/users/guru");
+  }
 };
 </script>
 

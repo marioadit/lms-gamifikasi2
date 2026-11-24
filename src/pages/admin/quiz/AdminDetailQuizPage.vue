@@ -81,7 +81,11 @@ watch(
 onMounted(loadData);
 
 const goBack = () => {
-  router.push('/admin/pelajaran');
+  if (window.history.state && window.history.state.back) {
+    router.back();
+  } else {
+    router.push('/admin/pelajaran');
+  }
 };
 
 const formatDate = (dateString) => {
@@ -110,7 +114,7 @@ const formatDate = (dateString) => {
       </div>
       <div class="flex gap-2">
         <button @click="goBack" class="btn btn-outline">
-          ← Kembali ke Pelajaran
+          ← Kembali
         </button>
         <router-link 
           v-if="lesson" 

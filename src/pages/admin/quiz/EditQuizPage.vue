@@ -123,7 +123,11 @@ const handleSubmit = async () => {
 };
 
 const cancelEdit = () => {
-  router.push(`/admin/kuis/${quizId}`);
+  if (window.history.state && window.history.state.back) {
+    router.back();
+  } else {
+    router.push(`/admin/kuis/${quizId}`);
+  }
 };
 </script>
 

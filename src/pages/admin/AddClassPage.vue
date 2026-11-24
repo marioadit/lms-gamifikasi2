@@ -112,7 +112,11 @@ const saveClass = async () => {
 
 // Batalkan dan kembali ke daftar kelas
 const cancelAdd = () => {
-  router.push("/admin/kelas");
+  if (window.history.state && window.history.state.back) {
+    router.back();
+  } else {
+    router.push("/admin/kelas");
+  }
 };
 </script>
 
@@ -125,7 +129,7 @@ const cancelAdd = () => {
         <p class="text-gray-500">Buat kelas baru dan pilih guru pengajar</p>
       </div>
       <button @click="cancelAdd" class="btn btn-outline">
-        Kembali ke Daftar
+        Kembali
       </button>
     </div>
 

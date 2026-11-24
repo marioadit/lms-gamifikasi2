@@ -21,7 +21,11 @@ const successMessage = ref("");
 const classes = computed(() => classesStore.classes);
 
 const cancelEdit = () => {
-  router.push(`/admin/pelajaran/${lessonsId.value}`);
+  if (window.history.state && window.history.state.back) {
+    router.back();
+  } else {
+    router.push(`/admin/pelajaran/${lessonsId.value}`);
+  }
 };
 
 const formData = ref({

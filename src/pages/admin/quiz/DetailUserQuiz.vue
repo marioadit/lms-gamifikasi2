@@ -87,7 +87,11 @@ const formatDate = (dateStr) => {
 };
 
 const goBack = () => {
-  router.push("/admin/kuis/hasil");
+  if (window.history.state && window.history.state.back) {
+    router.back();
+  } else {
+    router.push("/admin/kuis/hasil");
+  }
 };
 </script>
 
@@ -100,7 +104,7 @@ const goBack = () => {
         <p class="text-gray-500">Kumpulan kuis yang telah dikerjakan oleh siswa</p>
       </div>
       <button @click="goBack" class="btn btn-outline">
-        ← Kembali ke Ringkasan
+        ← Kembali
       </button>
     </div>
 

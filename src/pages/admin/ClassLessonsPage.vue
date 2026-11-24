@@ -35,7 +35,11 @@ const getFullThumbnailUrl = (thumbnail) => {
 };
 
 const goBack = () => {
-  router.push("/admin/kelas");
+  if (window.history.state && window.history.state.back) {
+    router.back();
+  } else {
+    router.push("/admin/kelas");
+  }
 };
 
 // Function to load data with delay between calls

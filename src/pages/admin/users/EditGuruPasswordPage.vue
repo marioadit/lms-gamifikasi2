@@ -52,7 +52,11 @@ const handleSubmit = async () => {
 };
 
 const handleCancel = () => {
-  router.push(`/admin/users/guru/${teacherId}`);
+  if (window.history.state && window.history.state.back) {
+    router.back();
+  } else {
+    router.push(`/admin/users/guru/${teacherId}`);
+  }
 };
 </script>
 

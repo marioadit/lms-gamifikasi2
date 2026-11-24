@@ -170,6 +170,10 @@ const handleSubmit = async () => {
 };
 
 const cancelAdd = () => {
+  if (window.history.state && window.history.state.back) {
+    router.back();
+    return;
+  }
   const queryClassId = route.query.class_id || route.query.classId;
   if (queryClassId) {
     router.push(`/admin/kelas/${queryClassId}/pelajaran`);
@@ -188,7 +192,7 @@ const cancelAdd = () => {
         <p class="text-gray-500">Buat materi pelajaran baru untuk siswa</p>
       </div>
       <button @click="cancelAdd" class="btn btn-outline">
-        Kembali ke Daftar
+        Kembali
       </button>
     </div>
 

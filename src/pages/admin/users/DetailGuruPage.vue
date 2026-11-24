@@ -1,10 +1,19 @@
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { getUserById } from "../../../api/userApi";
 import { getClasses } from "../../../api/classesApi";
 
 const route = useRoute();
+const router = useRouter();
+
+const goBack = () => {
+  if (window.history.state && window.history.state.back) {
+    router.back();
+  } else {
+    router.push("/admin/users/guru");
+  }
+};
 
 const teacherId = computed(() => route.params.id);
 const detailTeacher = ref(null);
@@ -83,9 +92,9 @@ watch(
         <p class="text-gray-500">Informasi profil dan daftar kelas yang diampu</p>
       </div>
       <div class="flex gap-2">
-        <router-link to="/admin/users/guru" class="btn btn-outline">
-          ← Kembali ke Daftar Guru
-        </router-link>
+        <button @click="goBack" class="btn btn-outline">
+          ← Kembali
+        </button>
       </div>
     </div>
 

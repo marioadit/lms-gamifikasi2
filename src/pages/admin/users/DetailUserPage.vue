@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useUserStore } from "../../../store/userStore";
 import { useStudentStore } from "../../../store/studentStore";
 import { getClassesById } from "../../../api/classesApi";
@@ -11,6 +11,15 @@ const usersStore = useUserStore();
 const studentsStore = useStudentStore();
 const authStore = useAuthStore();
 const route = useRoute();
+const router = useRouter();
+
+const goBack = () => {
+  if (window.history.state && window.history.state.back) {
+    router.back();
+  } else {
+    router.push("/admin/users/siswa");
+  }
+};
 
 const userRole = computed(() => authStore.userRole);
 const currentUserId = computed(() => authStore.currentUserId);
@@ -85,9 +94,9 @@ watch(
         <p class="text-gray-500">Informasi profil siswa, kelas, dan teman sekelas</p>
       </div>
       <div class="flex gap-2">
-        <router-link to="/admin/users/siswa" class="btn btn-outline">
-          ← Kembali ke Daftar Siswa
-        </router-link>
+        <button @click="goBack" class="btn btn-outline">
+          ← Kembali
+        </button>
       </div>
     </div>
 

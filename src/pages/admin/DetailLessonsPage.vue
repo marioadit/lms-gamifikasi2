@@ -34,7 +34,11 @@ const getFullThumbnailUrl = (thumbnail) => {
 };
 
 const goBack = () => {
-  router.push("/admin/pelajaran");
+  if (window.history.state && window.history.state.back) {
+    router.back();
+  } else {
+    router.push("/admin/pelajaran");
+  }
 };
 
 onMounted(async () => {
@@ -62,7 +66,7 @@ onMounted(async () => {
         <p class="text-gray-500">Informasi lengkap tentang pelajaran dan kuis terkait</p>
       </div>
       <button @click="goBack" class="btn btn-outline">
-        ← Kembali ke Daftar
+        ← Kembali
       </button>
     </div>
 
@@ -150,8 +154,9 @@ onMounted(async () => {
                 </div>
 
                 <div class="flex gap-2 flex-wrap">
-                  :to="`/admin/kuis/${quiz.id}`" class="btn btn-xs btn-primary text-white">
-                  👁️ Detail
+                  <router-link :to="`/admin/kuis/${quiz.id}`" class="btn btn-xs btn-primary text-white">
+                    👁️ Detail
+                  </router-link>
                   <router-link :to="`/admin/kuis/${quiz.id}/edit`" class="btn btn-xs btn-warning text-white">
                     ✏️ Edit
                   </router-link>

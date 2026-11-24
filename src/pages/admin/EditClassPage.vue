@@ -140,7 +140,11 @@ const saveClass = async () => {
 
 // Batalkan dan kembali ke detail kelas
 const cancelEdit = () => {
-  router.push(`/admin/kelas/${classId.value}`);
+  if (window.history.state && window.history.state.back) {
+    router.back();
+  } else {
+    router.push(`/admin/kelas/${classId.value}`);
+  }
 };
 </script>
 

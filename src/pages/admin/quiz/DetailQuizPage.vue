@@ -245,7 +245,11 @@ const closeImageModal = () => {
 
 // Navigation
 const goBack = () => {
-  router.push("/admin/kuis");
+  if (window.history.state && window.history.state.back) {
+    router.back();
+  } else {
+    router.push("/admin/kuis");
+  }
 };
 
 // Load initial data

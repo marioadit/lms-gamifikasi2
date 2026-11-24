@@ -64,7 +64,11 @@ const handleSubmit = async () => {
 };
 
 const handleCancel = () => {
-  router.push(`/admin/users/${studentId}`);
+  if (window.history.state && window.history.state.back) {
+    router.back();
+  } else {
+    router.push(`/admin/users/${studentId}`);
+  }
 };
 </script>
 

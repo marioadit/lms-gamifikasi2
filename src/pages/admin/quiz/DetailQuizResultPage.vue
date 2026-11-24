@@ -321,6 +321,10 @@ const formatDate = (dateStr) => {
 };
 
 const goBack = () => {
+  if (window.history.state && window.history.state.back) {
+    router.back();
+    return;
+  }
   const targetStudentId = route.params.studentId || route.params.id || historyDetail.value?.student_id || historyDetail.value?.student?.id;
   if (targetStudentId) {
     router.push(`/admin/kuis/hasil/siswa/${targetStudentId}`);
@@ -339,7 +343,7 @@ const goBack = () => {
         <p class="text-gray-500">Rincian nilai dan hasil pengerjaan kuis siswa</p>
       </div>
       <button @click="goBack" class="btn btn-outline">
-        ← Kembali ke Riwayat Siswa
+        ← Kembali
       </button>
     </div>
 

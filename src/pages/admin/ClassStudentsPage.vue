@@ -271,7 +271,11 @@ const filteredStudents = computed(() => {
 
 // Navigasi kembali
 const goBackToClasses = () => {
-  router.push('/admin/kelas');
+  if (window.history.state && window.history.state.back) {
+    router.back();
+  } else {
+    router.push('/admin/kelas');
+  }
 };
 
 const goBackToDetail = () => {

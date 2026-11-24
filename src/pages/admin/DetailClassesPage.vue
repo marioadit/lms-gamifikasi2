@@ -32,7 +32,11 @@ const isTaughtByMe = computed(() => {
 });
 
 const goBack = () => {
-  router.push("/admin/kelas");
+  if (window.history.state && window.history.state.back) {
+    router.back();
+  } else {
+    router.push("/admin/kelas");
+  }
 };
 
 const openEditClass = () => {

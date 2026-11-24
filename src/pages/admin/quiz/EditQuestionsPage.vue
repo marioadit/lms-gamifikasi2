@@ -344,7 +344,11 @@ const handleSubmit = async () => {
 };
 
 const goBack = () => {
-  router.push(`/admin/kuis/${quizId.value}`);
+  if (window.history.state && window.history.state.back) {
+    router.back();
+  } else {
+    router.push(`/admin/kuis/${quizId.value}`);
+  }
 };
 </script>
 
