@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useLessonsStore } from "../../store/lessonsStore";
 import { useClassesStore } from "../../store/classesStore";
 import { getCurrentInstance } from 'vue';
@@ -10,6 +10,7 @@ import { useAuthStore } from "../../store/authStore";
 import { useQuizStore } from "../../store/quizStore";
 
 const route = useRoute();
+const router = useRouter();
 const lessonsStore = useLessonsStore();
 const classesStore = useClassesStore();
 const authStore = useAuthStore();
@@ -56,16 +57,63 @@ const loadAllData = async (force = false) => {
   }
 };
 
+const filterClassId = ref(null);
+
+const syncFilterFromRoute = () => {
+  const cid = route.query.class_id || route.query.classId;
+  if (cid) {
+    filterClassId.value = Number(cid);
+  } else {
+    filterClassId.value = null;
+  }
+};
+
+const selectClassFilter = (classId) => {
+  if (!classId) {
+    filterClassId.value = null;
+    const q = { ...route.query };
+    delete q.class_id;
+    delete q.classId;
+    router.replace({ query: q });
+    return;
+  }
+  filterClassId.value = Number(classId);
+  router.replace({
+    query: {
+      ...route.query,
+      class_id: classId
+    }
+  });
+};
+
+const onFilterChange = () => {
+  selectClassFilter(filterClassId.value);
+};
+
 onMounted(async () => {
+  syncFilterFromRoute();
   await loadAllData();
 });
 
-// Watch for route changes
+// Watch for route fullPath changes
 watch(
   () => route.fullPath,
   async (newPath, oldPath) => {
-    if (newPath === "/admin/pelajaran" && oldPath && oldPath !== "/admin/pelajaran") {
+    syncFilterFromRoute();
+    if (newPath.split('?')[0] === "/admin/pelajaran" && oldPath && oldPath.split('?')[0] !== "/admin/pelajaran") {
       await loadAllData();
+    }
+  }
+);
+
+// Watch for query class_id changes directly
+watch(
+  () => route.query.class_id,
+  (newCid) => {
+    if (newCid) {
+      filterClassId.value = Number(newCid);
+    } else {
+      filterClassId.value = null;
     }
   }
 );
@@ -73,18 +121,16 @@ watch(
 const errorMessage = computed(() => lessonsStore.error);
 
 const filteredLessons = computed(() => {
-  return lessonsStore.lessons.filter((lesson) => {
+  return (lessonsStore.lessons || []).filter((lesson) => {
     if (userRole.value === 'guru' && myClassIds.value) {
       if (!myClassIds.value.includes(lesson.class_id)) {
         return false;
       }
     }
     if (!filterClassId.value) return true;
-    return lesson.class_id === filterClassId.value;
+    return Number(lesson.class_id) === Number(filterClassId.value);
   });
 });
-
-const filterClassId = ref(null);
 
 const getQuizCount = (lesson) => {
   if (!lesson) return 0;
@@ -154,17 +200,22 @@ const deleteLesson = async (lessonId) => {
 
     <!-- Filter and Search -->
     <div class="bg-white p-4 rounded-lg shadow mb-6">
-      <div class="flex flex-col md:flex-row gap-4">
+      <div class="flex flex-col md:flex-row items-end gap-4">
         <div class="form-control w-full md:w-1/3">
           <label class="label">
             <span class="label-text font-medium">Filter Kelas</span>
           </label>
-          <select v-model="filterClassId" class="select select-bordered w-full">
+          <select v-model="filterClassId" @change="onFilterChange" class="select select-bordered w-full">
             <option :value="null">Semua Kelas</option>
             <option v-for="cls in classes" :key="cls.id" :value="cls.id">
               {{ cls.name }}
             </option>
           </select>
+        </div>
+        <div v-if="filterClassId" class="pb-1">
+          <button @click="selectClassFilter(null)" class="btn btn-outline btn-sm gap-1">
+            ✕ Hapus Filter
+          </button>
         </div>
       </div>
     </div>
@@ -197,8 +248,8 @@ const deleteLesson = async (lessonId) => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="lesson in filteredLessons" :key="lesson.id">
-            <td class="w-20">
+          <tr v-for="lesson in filteredLessons" :key="lesson.id" class="hover:bg-gray-50">
+            <td class="w-20 align-middle">
               <div class="avatar">
                 <div class="w-16 h-16 rounded-lg overflow-hidden">
                   <img
@@ -229,51 +280,63 @@ const deleteLesson = async (lessonId) => {
                 </div>
               </div>
             </td>
-            <td class="font-medium max-w-[200px]">
+            <td class="font-medium max-w-[200px] align-middle">
               <div class="truncate" :title="lesson.title">{{ lesson.title }}</div>
             </td>
-            <td class="max-w-xs">
+            <td class="max-w-xs align-middle">
               <div class="truncate" :title="lesson.description">{{ lesson.description || '-' }}</div>
             </td>
-            <td class="max-w-xs">
+            <td class="max-w-xs align-middle">
               <div class="truncate" :title="lesson.content">{{ lesson.content || '-' }}</div>
             </td>
-            <td class="max-w-[150px]">
-              <div class="truncate" :title="lesson.class?.name">{{ lesson.class?.name || 'Tidak ada kelas' }}</div>
+            <td class="max-w-[150px] align-middle">
+              <div
+                v-if="lesson.class?.name"
+                @click="selectClassFilter(lesson.class_id)"
+                class="truncate font-medium text-primary hover:underline cursor-pointer flex items-center gap-1"
+                :title="`Klik untuk memfilter hanya kelas ${lesson.class.name}`"
+              >
+                <span>{{ lesson.class.name }}</span>
+              </div>
+              <span v-else class="text-gray-400 italic">Tidak ada kelas</span>
             </td>
-            <td>{{ getQuizCount(lesson) }}</td>
-            <td class="flex gap-2">
-              <router-link
-                :to="`/admin/pelajaran/${lesson.id}`"
-                class="btn btn-sm btn-ghost"
-              >
-                Lihat
-              </router-link>
-              <router-link
-                :to="`/admin/kelas/${lesson.class_id}/pelajaran`"
-                class="btn btn-sm btn-info"
-              >
-                Kelas
-              </router-link>
-              <router-link
-                :to="`/admin/pelajaran/${lesson.id}/kuis`"
-                class="btn btn-sm btn-success text-white"
-              >
-                Kuis ({{ getQuizCount(lesson) }})
-              </router-link>
-              <router-link
-                :to="`/admin/pelajaran/${lesson.id}/edit`"
-                class="btn btn-sm btn-warning"
-              >
-                Edit
-              </router-link>
+            <td class="align-middle">{{ getQuizCount(lesson) }}</td>
+            <td class="align-middle">
+              <div class="flex items-center gap-1.5 flex-wrap py-2">
+                <router-link
+                  :to="`/admin/pelajaran/${lesson.id}`"
+                  class="btn btn-sm btn-ghost"
+                >
+                  Lihat
+                </router-link>
+                <button
+                  v-if="lesson.class_id"
+                  @click="selectClassFilter(lesson.class_id)"
+                  class="btn btn-sm btn-info text-white"
+                  :title="`Filter hanya kelas ${lesson.class?.name || ''}`"
+                >
+                  Kelas
+                </button>
+                <router-link
+                  :to="`/admin/pelajaran/${lesson.id}/kuis`"
+                  class="btn btn-sm btn-success text-white"
+                >
+                  Kuis ({{ getQuizCount(lesson) }})
+                </router-link>
+                <router-link
+                  :to="`/admin/pelajaran/${lesson.id}/edit`"
+                  class="btn btn-sm btn-warning"
+                >
+                  Edit
+                </router-link>
 
-              <button
-                class="btn btn-sm btn-error"
-                @click="deleteLesson(lesson.id)"
-              >
-                Hapus
-              </button>
+                <button
+                  class="btn btn-sm btn-error"
+                  @click="deleteLesson(lesson.id)"
+                >
+                  Hapus
+                </button>
+              </div>
             </td>
           </tr>
           <tr v-if="filteredLessons.length === 0">

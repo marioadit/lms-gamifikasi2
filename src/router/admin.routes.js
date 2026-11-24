@@ -160,8 +160,10 @@ export default [
             {
                 path: "kelas/:id/pelajaran",
                 name: "adminClassLessons",
-                component: ClassLessonsPage,
-                meta: { title: "Kelola Pelajaran Kelas", requiresAuth: true }
+                redirect: to => ({
+                    path: "/admin/pelajaran",
+                    query: { class_id: to.params.id }
+                })
             },
             // Quiz management
             {

@@ -212,36 +212,38 @@ const saveStudents = () => {
             <td>{{ cls.lesson_count || 0 }}</td>
             <td>{{ cls.semester || '-' }}</td>
             <td>{{ cls.academic_year || '-' }}</td>
-            <td class="flex gap-2">
-              <router-link
-                :to="`/admin/kelas/${cls.id}`"
-                class="btn btn-sm btn-ghost"
-              >
-                Lihat
-              </router-link>
-              <router-link
-                :to="`/admin/kelas/${cls.id}/siswa`"
-                class="btn btn-sm btn-info"
-              >
-                Siswa
-              </router-link>
-              <router-link
-                v-if="userRole === 'admin' || isTaughtByMe(cls)"
-                :to="`/admin/kelas/${cls.id}/pelajaran`"
-                class="btn btn-sm btn-success"
-              >
-                Pelajaran
-              </router-link>
-              <router-link
-                v-if="userRole === 'admin' || isTaughtByMe(cls)"
-                :to="`/admin/kelas/edit/${cls.id}`"
-                class="btn btn-sm btn-warning"
-              >
-                Edit
-              </router-link>
-              <button v-if="userRole === 'admin'" @click="deleteClass(cls.id)" class="btn btn-sm btn-error">
-                Hapus
-              </button>
+            <td class="align-middle">
+              <div class="flex items-center gap-1.5 flex-wrap py-2">
+                <router-link
+                  :to="`/admin/kelas/${cls.id}`"
+                  class="btn btn-sm btn-ghost"
+                >
+                  Lihat
+                </router-link>
+                <router-link
+                  :to="`/admin/kelas/${cls.id}/siswa`"
+                  class="btn btn-sm btn-info"
+                >
+                  Siswa
+                </router-link>
+                <router-link
+                  v-if="userRole === 'admin' || isTaughtByMe(cls)"
+                  :to="`/admin/pelajaran?class_id=${cls.id}`"
+                  class="btn btn-sm btn-success"
+                >
+                  Pelajaran
+                </router-link>
+                <router-link
+                  v-if="userRole === 'admin' || isTaughtByMe(cls)"
+                  :to="`/admin/kelas/edit/${cls.id}`"
+                  class="btn btn-sm btn-warning"
+                >
+                  Edit
+                </router-link>
+                <button v-if="userRole === 'admin'" @click="deleteClass(cls.id)" class="btn btn-sm btn-error">
+                  Hapus
+                </button>
+              </div>
             </td>
           </tr>
           <tr v-if="classes.length === 0">

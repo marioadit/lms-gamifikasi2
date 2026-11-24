@@ -152,7 +152,7 @@ const handleSubmit = async () => {
       if (result.isConfirmed) {
         const queryClassId = route.query.class_id || route.query.classId;
         if (queryClassId) {
-          router.push(`/admin/kelas/${queryClassId}/pelajaran`);
+          router.push(`/admin/pelajaran?class_id=${queryClassId}`);
         } else {
           router.push("/admin/pelajaran");
         }
@@ -176,7 +176,7 @@ const cancelAdd = () => {
   }
   const queryClassId = route.query.class_id || route.query.classId;
   if (queryClassId) {
-    router.push(`/admin/kelas/${queryClassId}/pelajaran`);
+    router.push(`/admin/pelajaran?class_id=${queryClassId}`);
   } else {
     router.push("/admin/pelajaran");
   }
